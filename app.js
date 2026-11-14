@@ -1464,14 +1464,30 @@
 
   /* ---------- Expliquer le TDAH à mon enfant ---------- */
   const EXPLAIN_LINKS = [
-    { group: 'À regarder ensemble', kind: 'video', title: 'Le TDAH expliqué aux enfants : et si c’était un super pouvoir ?', by: 'Jennifer Wilson (YouTube)', url: 'https://www.youtube.com/watch?v=EdmbGHgDpvA' },
-    { group: 'À regarder ensemble', kind: 'video', title: 'Raph et le TDAH', by: 'Synapse 360 (YouTube)', url: 'https://www.youtube.com/watch?v=0CRBlb08poM' },
+    { group: 'À regarder ensemble', kind: 'video', title: 'Le TDAH expliqué aux enfants : et si c’était un super pouvoir ?', by: 'Jennifer Wilson', url: 'https://www.youtube.com/watch?v=EdmbGHgDpvA' },
+    { group: 'À regarder ensemble', kind: 'video', title: 'Raph et le TDAH', by: 'Synapse 360', url: 'https://www.youtube.com/watch?v=0CRBlb08poM' },
+    { group: 'À regarder ensemble', kind: 'video', title: 'Qu’est-ce que le TDAH ?', by: 'Alice Gendron · La Mini Coach TDAH · 6 min', url: 'https://www.youtube.com/watch?v=YSWsc8mk1Co' },
     { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 1', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=EAmXnm-XG_Y' },
     { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 2', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=URjdLzEy5eA' },
     { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 3 (à partir de 1:20)', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=rTw94ON77kU&t=80s' },
     { group: 'À lire (parent)', kind: 'link', title: 'Comment expliquer le TDAH à mon enfant', by: 'CENTAM – clinique de neuropsychologie, Montréal', url: 'https://centam.ca/comment-expliquer-le-tdah-a-mon-enfant/' },
     { group: 'À lire (parent)', kind: 'link', title: 'Désencombrer quand on a un TDAH (webinaire)', by: 'CADDAC', url: 'https://caddac.ca/fr/programs-events/comment-desencombrer-quand-on-a-un-tdah-et-quon-se-noie-dans-nos-objets/' }
   ];
+
+  // « Ils en parlent » : personnes qui ont parlé elles-mêmes de leur diagnostic.
+  const VOICES = [
+    { n: 'Louane', r: 'Chanteuse', e: '🎤', w: 'Elle perd le fil d’une conversation quand une pensée l’emporte. Elle en parle parce qu’enfant, elle aurait aimé le savoir.', k: 'enfant', v: 'TDAH : la chanteuse Louane témoigne', by: 'C à vous · 6 min', url: 'https://www.youtube.com/watch?v=UAdMqrvHoMM' },
+    { n: 'Philippe Katerine', r: 'Chanteur, comédien', e: '🎹', w: 'Diagnostiqué à 57 ans. Pas hyperactif du tout : il parle en riant de son « trouble d’attention mou », et se sent bien en studio devant ses dessins.', k: 'enfant', v: 'L’interview dans Clique', by: 'Clique TV · nov. 2026', url: 'https://www.youtube.com/watch?v=EOhSI9A0o_w' },
+    { n: 'Simone Biles', r: 'Gymnaste, championne olympique', e: '🤸', w: 'Ses données médicales ont été piratées en 2016. Elle a répondu publiquement qu’elle avait un TDAH et un traitement depuis l’enfance : il n’y a pas de quoi avoir honte.', k: 'enfant', v: '« Il n’y a pas de quoi avoir honte »', by: 'Maman à maman, au cœur du TDAH · 6 min', url: 'https://www.youtube.com/watch?v=rR2m_UYQ2Zc' },
+    { n: 'Michel Cymes', r: 'Chirurgien ORL, animateur', e: '🩺', w: 'Diagnostiqué après 55 ans. Il dit que s’ennuyer vite l’a obligé à être créatif, et que c’est devenu un atout dans son métier.', k: 'parent', v: 'Et si vous étiez TDAH sans le savoir ?', by: 'C à vous · 10 min', url: 'https://www.youtube.com/watch?v=Rpdis2s55Kw' },
+    { n: 'Jérémy Ferrari', r: 'Humoriste', e: '🎭', w: 'Il se sentait différent depuis ses 14 ans, bien avant de mettre un mot dessus.', k: 'parent', v: '« Depuis mes 14 ans, je me sentais différent »', by: 'Clique TV · 24 min', url: 'https://www.youtube.com/watch?v=IvwdK9s1kOg' },
+    { n: 'Manu Payet', r: 'Humoriste, comédien', e: '😄', w: 'Le boute-en-train de la classe pendant toute sa scolarité. Diagnostic très tardif : « J’aurais aimé le savoir à l’époque. »', k: 'parent', v: 'L’article de Paris Match', by: 'juin 2026', url: 'https://www.parismatch.be/actualites/people/2026/06/15/ce-trouble-diagnostique-chez-manu-payet-a-lage-adulte-jaurais-aime-le-savoir-a-lepoque-2SOPLCO7OZCKLPJSAFVVLXED6I/' },
+    { n: 'Maïtena Biraben', r: 'Animatrice', e: '📺', w: 'Diagnostic d’autisme et de TDAH à 57 ans : « J’ai 57 ans de ma vie à revisiter. »', k: 'parent', v: 'Son témoignage sans filtre', by: 'Le Nouvel Obs · 24 min', url: 'https://www.youtube.com/watch?v=0jpVsfiyqoI' },
+    { n: 'Laure Bailacq', r: 'Championne de France de boxe française', e: '🥊', w: 'Diagnostiquée tard. Elle a compris que la boxe était depuis toujours le traitement qu’elle se prescrivait sans le savoir.', k: 'parent', v: 'Championne devenue coach', by: 'LabO RNP · 27 min', url: 'https://www.youtube.com/watch?v=VA2x0mS16ow' },
+    { n: 'Alice Gendron', r: 'Autrice du « Petit guide illustré du TDAH »', e: '✏️', w: 'Diagnostiquée à 29 ans, soulagée d’un grand poids. Elle a mis ses gribouillages dans un livre pour expliquer le TDAH en images.', k: 'parent', v: 'Mieux vivre avec un TDAH', by: 'Métamorphose · 52 min', url: 'https://www.youtube.com/watch?v=quayEihABlY' },
+    { n: 'Catherine Testa', r: 'Cheffe d’entreprise', e: '💼', w: '« On m’a dit que j’avais bien trop réussi ma vie pour avoir un TDAH. » Ses notes dépendaient de sa place dans la classe.', k: 'parent', v: 'Son parcours en conférence', by: 'ITS Pierre Bourdieu · 1 h 37', url: 'https://www.youtube.com/watch?v=GXoLHMbTblY' }
+  ];
+
   function viewExplain() {
     const mine = db.links || [];
     const all = [...EXPLAIN_LINKS, ...mine.map((l) => ({ ...l, group: 'Mes liens', kind: /youtu/.test(l.url) ? 'video' : 'link', mine: true }))];
@@ -1499,6 +1515,14 @@
             </a>
             ${l.mine ? `<button class="iconbtn" data-del="${l.id}" aria-label="Supprimer ce lien">${ICON.trash}</button>` : ''}
           </div>`).join('')}`).join('')}
+      <div class="section-title">Ils en parlent</div>
+      <p class="muted small" style="margin:-4px 4px 10px">Des personnes qui ont parlé elles-mêmes de leur diagnostic. Les trois premières se regardent bien avec un enfant.</p>
+      ${VOICES.map((p) => `
+        <details class="fiche card voice">
+          <summary><span class="v-e">${esc(p.e)}</span><span class="v-t"><b>${esc(p.n)}</b><span class="muted small">${esc(p.r)}</span></span>${p.k === 'enfant' ? '<span class="tag ok">avec l’enfant</span>' : ''}</summary>
+          <p style="font-weight:700">${esc(p.w)}</p>
+          <a class="btn soft block" href="${esc(p.url)}" target="_blank" rel="noopener noreferrer">${ICON.play} ${esc(p.v)} <span class="muted small">· ${esc(p.by)}</span></a>
+        </details>`).join('')}
       <div class="card" style="margin-top:14px">
         <h3>Ajouter un lien</h3>
         <label class="lab" for="lt">Titre</label>
@@ -1777,7 +1801,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.8</p>`;
+      <p class="center muted small">Boussole calme · V1.9</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
