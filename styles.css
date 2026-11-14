@@ -298,3 +298,4 @@ a.banner, a.mini, a.tile, .weather button { text-decoration: none; color: inheri
 .edit-step select { width: auto; flex: 1; }
 .iconbtn:disabled { opacity: .35; }
 @media (prefers-reduced-motion: reduce) { .starpop { animation: none; opacity: 0; } }
+.btn.plum { background: var(--plum); }

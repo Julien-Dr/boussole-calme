@@ -54,6 +54,7 @@
     zzz: S('<path d="M14 18h14L14 34h14M36 30h10l-10 12h10M44 12h8l-8 9h8"/>'),
     basket: S('<path d="M8 26h48l-6 28H14z" fill="#DCEDE3" stroke="#4F8A6B"/><path d="M20 26l8-14M44 26l-8-14M22 36v10M32 36v10M42 36v10" stroke="#4F8A6B"/>'),
     shirt: S('<path d="M24 10l-14 8 5 11 6-3v28h22V26l6 3 5-11-14-8c-1 4-4 6-8 6s-7-2-8-6z" fill="#DDE6F3" stroke="#56709A"/>'),
+    drop: S('<path d="M32 8C24 20 16 29 16 38a16 16 0 0 0 32 0c0-9-8-18-16-30z" fill="#EBE2F3" stroke="#9B7BB8"/><path d="M24 40a8 8 0 0 0 8 8" stroke="#9B7BB8"/>'),
     up: S('<path d="M18 38l14-14 14 14"/>'),
     down: S('<path d="M18 26l14 14 14-14"/>'),
     timer: S('<circle cx="32" cy="36" r="20"/><path d="M32 36V24M26 8h12M32 8v8M48 18l4-4"/>')
@@ -205,9 +206,9 @@
     [/^#\/ennui$/, viewEnnui],
     [/^#\/minuteur$/, viewVTimer],
     [/^#\/ranger$/, () => go('#/r/ranger')],
-    [/^#\/r\/(ranger|habiller)$/, viewRoutine],
-    [/^#\/r\/(ranger|habiller)\/go$/, viewRoutineGo],
-    [/^#\/r\/(ranger|habiller)\/liste$/, guard(viewRoutineEdit)],
+    [/^#\/r\/(ranger|habiller|toilette)$/, viewRoutine],
+    [/^#\/r\/(ranger|habiller|toilette)\/go$/, viewRoutineGo],
+    [/^#\/r\/(ranger|habiller|toilette)\/liste$/, guard(viewRoutineEdit)],
     [/^#\/ennui\/pioche(?:\/(\w+))?$/, viewPioche],
     [/^#\/ennui\/duo$/, viewDuo],
     [/^#\/ennui\/reve$/, viewReve],
@@ -276,10 +277,10 @@
         <a class="tile bg-sun" href="#/minuteur"><div class="pic c-terra">${ICON.timer}</div><div class="txt"><strong>Mon minuteur</strong></div></a>
         <a class="tile bg-sage" href="#/r/ranger"><div class="pic c-sage">${ICON.basket}</div><div class="txt"><strong>Je range ma chambre</strong></div></a>
       </div>
-      <a class="tile bg-sky" href="#/r/habiller">
-        <div class="pic c-sky">${ICON.shirt}</div>
-        <div class="txt"><strong>Je m’habille</strong><span>Un vêtement à la fois</span></div>
-      </a>
+      <div class="grid2">
+        <a class="tile bg-sky" href="#/r/habiller"><div class="pic c-sky">${ICON.shirt}</div><div class="txt"><strong>Je m’habille</strong></div></a>
+        <a class="tile bg-plum" href="#/r/toilette"><div class="pic c-plum">${ICON.drop}</div><div class="txt"><strong>Ma toilette</strong></div></a>
+      </div>
       <div class="section-title">Pour le parent</div>
       ${screenBanner()}
       <div class="parentrow" style="grid-template-columns:repeat(4,1fr)">
@@ -1188,6 +1189,20 @@
       ]
     }
   };
+  ROUTINES.toilette = {
+    title: 'Ma toilette', icon: 'drop', c: 'c-plum', color: '#9B7BB8', btn: 'plum',
+    intro: 'Une étape à la fois, devant le lavabo. Une étoile pour chaque étape !',
+    endAll: 'Tout propre !', endMsg: 'Va sentir comme tu sens bon… et montre ton beau sourire à quelqu’un !',
+    tip: '<b>Astuce parent :</b> afficher aussi au-dessus du lavabo une petite fiche avec les images des étapes, dans le même ordre. L’enfant n’a plus besoin qu’on lui redise chaque consigne.',
+    steps: [
+      { e: '🚽', t: 'Je passe aux toilettes et je tire la chasse', min: 2 },
+      { e: '🧼', t: 'Je me lave les mains avec du savon', min: 1 },
+      { e: '💦', t: 'Je me lave le visage', min: 1 },
+      { e: '🪥', t: 'Je me brosse les dents jusqu’à la fin du cercle', min: 2 },
+      { e: '🪮', t: 'Je me coiffe', min: 1 },
+      { e: '🧺', t: 'Je range ma brosse à dents et ma serviette', min: 1 }
+    ]
+  };
   const routine = (k) => {
     db.routines = db.routines || {};
     if (!db.routines.ranger && db.tidy) { db.routines.ranger = db.tidy; delete db.tidy; } // reprise des données V1.3
@@ -1492,7 +1507,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.4</p>`;
+      <p class="center muted small">Boussole calme · V1.5</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
