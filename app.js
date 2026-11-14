@@ -199,6 +199,7 @@
     [/^#\/calme\/compter$/, viewCount],
     [/^#\/froid\/(\w+)$/, viewTalk],
     [/^#\/ennui$/, viewEnnui],
+    [/^#\/minuteur$/, viewVTimer],
     [/^#\/ennui\/pioche(?:\/(\w+))?$/, viewPioche],
     [/^#\/ennui\/duo$/, viewDuo],
     [/^#\/ennui\/reve$/, viewReve],
@@ -261,6 +262,11 @@
       <a class="tile bg-plum" href="#/ennui">
         <div class="pic c-plum">${ICON.puzzle}</div>
         <div class="txt"><strong>Je m’ennuie</strong><span>Je trouve une idée</span></div>
+      </a>
+      ${timerBanner()}
+      <a class="tile bg-sun" href="#/minuteur">
+        <div class="pic c-terra">${ICON.timer}</div>
+        <div class="txt"><strong>Mon minuteur</strong><span>Je vois le temps qui passe</span></div>
       </a>
       <div class="section-title">Pour le parent</div>
       ${screenBanner()}
@@ -1036,6 +1042,109 @@
     $('#stop').addEventListener('click', () => { clear(); go('#/'); });
   }
 
+  /* ---------- Minuteur visuel réglable ---------- */
+  // Disque qui se vide (lecture immédiate du temps restant, même sans savoir lire l'heure)
+  const PIE_R = 120;
+  function pieSVG() {
+    return `<svg class="pie" viewBox="0 0 280 280" aria-hidden="true">
+      <circle cx="140" cy="140" r="134" fill="var(--paper)" stroke="var(--line)" stroke-width="6"/>
+      ${Array.from({ length: 12 }, (_, i) => { const a = i * Math.PI / 6; const r1 = 126, r2 = i % 3 ? 118 : 110; return `<line x1="${140 + r1 * Math.sin(a)}" y1="${140 - r1 * Math.cos(a)}" x2="${140 + r2 * Math.sin(a)}" y2="${140 - r2 * Math.cos(a)}" stroke="var(--ink-soft)" stroke-width="${i % 3 ? 3 : 5}" stroke-linecap="round"/>`; }).join('')}
+      <path class="slice" fill="var(--terra)" d=""/>
+      <circle cx="140" cy="140" r="16" fill="var(--paper)" stroke="var(--ink)" stroke-width="5"/>
+    </svg>`;
+  }
+  function slicePath(frac) {
+    frac = Math.max(0, Math.min(1, frac));
+    if (frac <= 0) return '';
+    if (frac >= 0.9999) return `M140 140 m0 ${-PIE_R} a${PIE_R} ${PIE_R} 0 1 1 0 ${2 * PIE_R} a${PIE_R} ${PIE_R} 0 1 1 0 ${-2 * PIE_R}z`;
+    const a = frac * 2 * Math.PI; // le temps restant, dans le sens des aiguilles d'une montre depuis midi
+    const x = 140 + PIE_R * Math.sin(a), y = 140 - PIE_R * Math.cos(a);
+    return `M140 140 L140 ${140 - PIE_R} A${PIE_R} ${PIE_R} 0 ${a > Math.PI ? 1 : 0} 1 ${x} ${y} Z`;
+  }
+  const vLeft = (v) => v.paused ? v.remaining : v.start + v.durationMs - Date.now();
+  function timerBanner() {
+    const v = db.vtimer; if (!v) return '';
+    const left = vLeft(v);
+    return `<a class="banner" href="#/minuteur" style="background:var(--terra-soft);border-color:var(--terra)">${ICON.timer.replace('<svg', '<svg style="color:var(--terra)"')}<div><strong>Minuteur ${v.paused ? 'en pause' : 'en cours'}</strong><span>${left > 0 ? `Reste ${mmss(left)}` : 'Temps écoulé'}</span></div></a>`;
+  }
+  function checkVTimer() {
+    const v = db.vtimer; if (!v || v.paused || v.rang) return;
+    if (vLeft(v) <= 0) { v.rang = true; save(); vibrate([300, 150, 300, 150, 300]); notify('Le temps est écoulé', v.label || 'Ton minuteur est terminé.', './#/minuteur'); }
+  }
+  setInterval(checkVTimer, 3000);
+
+  function viewVTimer() {
+    const v = db.vtimer;
+    if (!v) {
+      const last = db.settings.vtimerMin || 5;
+      let min = last, label = '';
+      const presets = [1, 2, 3, 5, 10, 15, 20, 30, 45, 60];
+      const paint = () => {
+        app.innerHTML = `
+          ${topbar('Mon minuteur')}
+          <div class="card cut center">
+            <div class="stepper">
+              <button class="iconbtn big" id="minus" aria-label="Moins une minute">−</button>
+              <div><div class="bignum" id="val">${min}</div><div class="muted" style="font-weight:800">minute${min > 1 ? 's' : ''}</div></div>
+              <button class="iconbtn big" id="plus1" aria-label="Plus une minute">+</button>
+            </div>
+            <div class="chips" id="pre" style="justify-content:center;margin-top:14px">${presets.map((p) => `<button class="chip" data-v="${p}" aria-pressed="${p === min}">${p < 60 ? p + ' min' : '1 h'}</button>`).join('')}</div>
+          </div>
+          <label class="lab" for="lbl">Pour quoi ? <span class="muted small">(facultatif)</span></label>
+          <div class="chips" id="sug" style="margin-bottom:8px">${['Devoirs', 'Brossage de dents', 'Rangement', 'Habillage', 'Jeu', 'Écran'].map((s) => `<button class="chip" data-s="${s}" aria-pressed="false">${s}</button>`).join('')}</div>
+          <input type="text" id="lbl" maxlength="40" placeholder="Ex. : se préparer pour l’école" value="${esc(label)}">
+          <button class="btn terra block" style="margin-top:16px" id="go">${ICON.timer} Lancer ${min} minute${min > 1 ? 's' : ''}</button>`;
+        const set = (n) => { min = Math.max(1, Math.min(120, n)); label = $('#lbl').value; paint(); };
+        $('#minus').addEventListener('click', () => set(min - 1));
+        $('#plus1').addEventListener('click', () => set(min + 1));
+        $$('#pre .chip').forEach((b) => b.addEventListener('click', () => set(Number(b.dataset.v))));
+        $$('#sug .chip').forEach((b) => b.addEventListener('click', () => { $('#lbl').value = b.dataset.s; $$('#sug .chip').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
+        $('#go').addEventListener('click', () => {
+          db.settings.vtimerMin = min;
+          db.vtimer = { start: Date.now(), durationMs: min * 60000, paused: false, remaining: 0, label: $('#lbl').value.trim(), rang: false };
+          save(); askNotif(); render();
+        });
+      };
+      paint();
+      return;
+    }
+    app.innerHTML = `
+      ${topbar(v.label ? esc(v.label) : 'Mon minuteur')}
+      <div class="timerwrap">
+        <div class="pie-wrap">${pieSVG()}</div>
+        <div class="time big" id="t"></div>
+      </div>
+      <div class="row">
+        <button class="btn soft" id="pause"></button>
+        <button class="btn soft" id="more">+ 1 min</button>
+      </div>
+      <div class="stack" style="margin-top:10px">
+        <button class="btn ghost" id="stop">Arrêter</button>
+      </div>`;
+    const step = () => {
+      const left = vLeft(v);
+      const s = $('.slice'); if (!s) return;
+      s.setAttribute('d', slicePath(left / v.durationMs));
+      $('#t').textContent = left > 0 ? mmss(left) : 'Temps écoulé !';
+      $('#pause').innerHTML = v.paused ? '▶ Reprendre' : '❚❚ Pause';
+      $('.pie-wrap').classList.toggle('done', left <= 0);
+      if (left <= 0) { $('#pause').disabled = true; checkVTimer(); }
+    };
+    step(); tick = setInterval(step, 500);
+    $('#pause').addEventListener('click', () => {
+      if (v.paused) { v.start = Date.now() - (v.durationMs - v.remaining); v.paused = false; }
+      else { v.remaining = vLeft(v); v.paused = true; }
+      save(); step();
+    });
+    $('#more').addEventListener('click', () => {
+      const left = Math.max(0, vLeft(v));
+      v.durationMs = Math.max(v.durationMs, left + 60000);
+      if (v.paused) v.remaining = left + 60000; else v.start = Date.now() + left + 60000 - v.durationMs;
+      v.rang = false; $('#pause').disabled = false; save(); step();
+    });
+    $('#stop').addEventListener('click', () => { db.vtimer = null; save(); go('#/'); });
+  }
+
   /* ---------- Code parent ---------- */
   function viewPin() {
     const creating = !db.settings.pin;
@@ -1203,7 +1312,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.1</p>`;
+      <p class="center muted small">Boussole calme · V1.2</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
@@ -1255,6 +1364,7 @@
 
   /* ================= Démarrage ================= */
   // Écran allumé pendant les minuteurs quand c'est possible
+  const awakeNeeded = () => !!db.active || (location.hash === '#/minuteur' && !!db.vtimer);
   let wake = null;
   async function keepAwake(on) {
     try {
@@ -1262,10 +1372,10 @@
       if (!on && wake) { await wake.release(); wake = null; }
     } catch (e) { /* rien */ }
   }
-  window.addEventListener('hashchange', () => keepAwake(!!db.active));
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) keepAwake(!!db.active); });
+  window.addEventListener('hashchange', () => keepAwake(awakeNeeded()));
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) keepAwake(awakeNeeded()); });
 
   render();
   checkReminders();
-  keepAwake(!!db.active);
+  keepAwake(awakeNeeded());
 })();

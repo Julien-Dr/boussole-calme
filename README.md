@@ -2,7 +2,7 @@
 
 Petite appli web pour traverser les crises et les tempêtes d'émotions en famille. Elle s'installe sur le téléphone et fonctionne hors connexion.
 
-## Ce qu'elle contient (V1.1)
+## Ce qu'elle contient (V1.2)
 
 - **Mon temps pour me calmer** : un minuteur visuel de 20 minutes (« je vais dans ma chambre »). Il propose aussi des repères pour le parent pendant la crise et une note rapide : déclencheur, lieu, intensité, ce qui s'est passé.
 - **En reparler à froid** : un rappel programmé après la crise, puis une discussion guidée en 5 étapes (ce qui s'est passé, ressenti, la prochaine fois, réparation, réconciliation).
@@ -10,6 +10,7 @@ Petite appli web pour traverser les crises et les tempêtes d'émotions en famil
 - **Ma météo** : soleil, nuage, orage ou tornade, avec des outils proposés selon le temps choisi.
 - **Ma boîte pour me calmer** : respiration du dragon animée, 5 choses que je vois, serrer son coussin, compter jusqu'à 10, boire un verre d'eau.
 - **Je m'ennuie** : « De quoi j'ai besoin ? » (bouger, du nouveau, être avec quelqu'un, fatigué), une pioche de cartes en 5 familles (bouger, construire, créer, réfléchir, imaginer) avec un mode défi chronométré, des cartes personnelles, un nuage de rêverie de 5 minutes, un sac d'attente avec des jeux sans matériel, et un minuteur d'écran avec préavis à 5 puis 2 minutes.
+- **Mon minuteur** : un disque qui se vide, avec une durée réglable de 1 à 120 minutes (boutons + et −, ou durées toutes prêtes) et une étiquette facultative (devoirs, rangement…). On peut faire pause et ajouter 1 minute. Une vibration et une notification signalent la fin.
 - **Espace parent** (protégé par un code à 4 chiffres) : journal des crises avec quelques chiffres, réglages, export et import des données.
 
 ## Vie privée

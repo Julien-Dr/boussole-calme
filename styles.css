@@ -263,3 +263,14 @@ a.banner, a.mini, a.tile, .weather button { text-decoration: none; color: inheri
 .clouds.drift svg { animation: drift 6s ease-in-out infinite; }
 @keyframes drift { 0%, 100% { transform: translateX(-8%); } 50% { transform: translateX(8%); } }
 @media (prefers-reduced-motion: reduce) { .flip, .clouds.drift svg { animation: none !important; } }
+
+/* ---------- Minuteur visuel ---------- */
+.stepper { display: flex; align-items: center; justify-content: center; gap: 22px; }
+.iconbtn.big { width: 64px; height: 64px; font-family: "Fredoka"; font-weight: 600; font-size: 2rem; line-height: 1; }
+.pie-wrap { width: min(82vw, 320px); aspect-ratio: 1; }
+.pie-wrap svg { width: 100%; height: 100%; display: block; }
+.pie-wrap.done .slice { fill: var(--sage); }
+.pie-wrap.done { animation: pulse 1.2s ease-in-out 3; }
+@keyframes pulse { 50% { transform: scale(1.04); } }
+.time.big { font-family: "Fredoka"; font-weight: 600; font-size: 2.4rem; color: var(--ink); }
+@media (prefers-reduced-motion: reduce) { .pie-wrap.done { animation: none; } }
