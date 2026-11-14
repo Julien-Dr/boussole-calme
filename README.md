@@ -2,7 +2,7 @@
 
 Petite appli web pour traverser les crises et les tempêtes d'émotions en famille. Elle s'installe sur le téléphone et fonctionne hors connexion.
 
-## Ce qu'elle contient (V1.5)
+## Ce qu'elle contient (V1.6)
 
 - **Mon temps pour me calmer** : un minuteur visuel de 20 minutes (« je vais dans ma chambre »). Il propose aussi des repères pour le parent pendant la crise et une note rapide : déclencheur, lieu, intensité, ce qui s'est passé.
 - **En reparler à froid** : un rappel programmé après la crise, puis une discussion guidée en 5 étapes (ce qui s'est passé, ressenti, la prochaine fois, réparation, réconciliation).
@@ -14,6 +14,7 @@ Petite appli web pour traverser les crises et les tempêtes d'émotions en famil
 - **Je range ma chambre** : des missions une par une, chacune avec une image et un petit minuteur. On gagne une étoile par mission réussie, et le total s'accumule. Le parent modifie la liste avec son code : il peut ajouter, réordonner, supprimer et régler les durées.
 - **Je m'habille** : le même principe, vêtement par vêtement, dans l'ordre. La liste se modifie aussi par le parent, et l'écran rappelle qu'on peut préparer les vêtements la veille.
 - **Ma toilette** : toilettes, mains, visage, dents (pendant tout le cercle du minuteur), coiffure, rangement du lavabo. La liste se modifie par le parent.
+- **Mes étoiles** : chaque étoile gagnée (missions et défis réussis) est enregistrée avec sa date. On voit le compte du jour, de la semaine (du lundi au dimanche) et du mois, avec un graphique, le détail par rubrique et les périodes précédentes. Le compteur du jour est affiché sur l'accueil.
 - **Espace parent** (protégé par un code à 4 chiffres) : journal des crises avec quelques chiffres, réglages, export et import des données.
 
 ## Vie privée

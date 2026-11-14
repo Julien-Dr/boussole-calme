@@ -299,3 +299,21 @@ a.banner, a.mini, a.tile, .weather button { text-decoration: none; color: inheri
 .iconbtn:disabled { opacity: .35; }
 @media (prefers-reduced-motion: reduce) { .starpop { animation: none; opacity: 0; } }
 .btn.plum { background: var(--plum); }
+
+/* ---------- Mes étoiles ---------- */
+.starpill { display: flex; flex-direction: column; align-items: center; text-decoration: none; color: #C98A12; background: var(--sun-soft); border: 2px solid var(--sun); border-radius: 18px; padding: 4px 12px; font-family: "Fredoka"; font-weight: 600; font-size: 1.25rem; line-height: 1.1; }
+.starpill small { font-family: "Nunito"; font-weight: 800; font-size: .68rem; color: var(--ink-soft); }
+.seg { justify-content: center; }
+.seg .chip { flex: 1; text-align: center; }
+.bigstar { font-family: "Fredoka"; font-weight: 600; font-size: 4rem; color: #C98A12; line-height: 1.1; margin-top: 8px; }
+.bars { display: flex; align-items: flex-end; gap: 6px; height: 150px; margin-top: 16px; padding-top: 18px; }
+.bars.month { gap: 2px; }
+.bar { flex: 1; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; position: relative; }
+.bar i { display: block; width: 100%; min-height: 3px; background: var(--sun); border-radius: 6px 6px 2px 2px; }
+.bar .v { font-size: .78rem; font-weight: 800; color: var(--ink-soft); min-height: 1.1em; }
+.bar .l { font-size: .75rem; font-weight: 800; color: var(--ink-soft); margin-top: 4px; }
+.bars.month .bar .v { font-size: .6rem; }
+.bars.month .bar .l { font-size: .55rem; }
+.bars.month .bar:nth-child(odd):not(.today) .l { visibility: hidden; }
+.bar.today i { background: var(--terra); }
+.bar.today .l { color: var(--terra); }

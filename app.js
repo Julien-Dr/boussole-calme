@@ -205,6 +205,7 @@
     [/^#\/froid\/(\w+)$/, viewTalk],
     [/^#\/ennui$/, viewEnnui],
     [/^#\/minuteur$/, viewVTimer],
+    [/^#\/etoiles$/, viewStars],
     [/^#\/ranger$/, () => go('#/r/ranger')],
     [/^#\/r\/(ranger|habiller|toilette)$/, viewRoutine],
     [/^#\/r\/(ranger|habiller|toilette)\/go$/, viewRoutineGo],
@@ -258,6 +259,7 @@
     app.innerHTML = `
       <div class="topbar">
         <div class="brand">${ICON.compass}<div><h1 style="font-size:1.55rem">Boussole calme</h1><small>Pour traverser les tempêtes</small></div></div>
+        <a class="starpill" href="#/etoiles" aria-label="Mes étoiles">★ ${starsSince(startOf('day'))}<small>aujourd’hui</small></a>
       </div>
       ${banner}
       <a class="tile big bg-sky" href="#/crise" id="startCrisis">
@@ -921,7 +923,7 @@
         </div>`;
     };
     localTimer(card.min * 60000, null, () => end(false));
-    $('#win').addEventListener('click', () => end(true));
+    $('#win').addEventListener('click', () => { addStar('defi'); end(true); });
   }
 
   function viewDuo() {
@@ -1267,7 +1269,7 @@
     };
     step(); tick = setInterval(step, 500);
     const next = (ok) => {
-      if (ok) { r.done++; T.stars++; vibrate([60]); } else r.skipped++;
+      if (ok) { r.done++; T.stars++; addStar(k); vibrate([60]); } else r.skipped++;
       r.i++; r.stepStart = Date.now(); save();
       if (ok) { app.insertAdjacentHTML('beforeend', '<div class="starpop">★</div>'); setTimeout(() => render(), 650); } else render();
     };
@@ -1340,6 +1342,92 @@
     };
     draw();
   }
+  /* ---------- Mes étoiles (jour / semaine / mois) ---------- */
+  const STAR_SRC = {
+    ranger: { label: 'Ma chambre', icon: 'basket' },
+    habiller: { label: 'M’habiller', icon: 'shirt' },
+    toilette: { label: 'Ma toilette', icon: 'drop' },
+    defi: { label: 'Défis réussis', icon: 'timer' }
+  };
+  function starLog() {
+    if (!Array.isArray(db.starLog)) {
+      // Première ouverture : on reprend l'historique des missions déjà terminées
+      db.starLog = [];
+      const R = db.routines || {};
+      if (db.tidy && !R.ranger) R.ranger = db.tidy;
+      Object.entries(R).forEach(([k, r]) => (r.history || []).forEach((h) => { for (let i = 0; i < (h.done || 0); i++) db.starLog.push({ at: h.at, src: k }); }));
+      db.starLog.sort((a, b) => a.at - b.at);
+    }
+    return db.starLog;
+  }
+  function addStar(src) { const L = starLog(); L.push({ at: Date.now(), src }); if (L.length > 10000) L.splice(0, L.length - 10000); save(); }
+  function startOf(unit, ref = new Date()) {
+    const d = new Date(ref); d.setHours(0, 0, 0, 0);
+    if (unit === 'week') { const wd = (d.getDay() + 6) % 7; d.setDate(d.getDate() - wd); }
+    if (unit === 'month') d.setDate(1);
+    return d.getTime();
+  }
+  const starsSince = (t, until = Infinity) => starLog().filter((s) => s.at >= t && s.at < until).length;
+
+  function viewStars() {
+    let period = sessionStorage.getItem('bc-starp') || 'week';
+    let offset = 0; // 0 = période en cours, -1 = précédente…
+    const draw = () => {
+      sessionStorage.setItem('bc-starp', period);
+      const now = new Date();
+      let from, to, title, bars = [];
+      if (period === 'day') {
+        const d = new Date(now); d.setDate(d.getDate() + offset);
+        from = startOf('day', d); to = from + 86400000;
+        title = offset === 0 ? 'Aujourd’hui' : offset === -1 ? 'Hier' : new Date(from).toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' });
+      } else if (period === 'week') {
+        const d = new Date(now); d.setDate(d.getDate() + offset * 7);
+        from = startOf('week', d); to = from + 7 * 86400000;
+        title = offset === 0 ? 'Cette semaine' : offset === -1 ? 'La semaine dernière' : `Semaine du ${new Date(from).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' })}`;
+        const names = ['L', 'M', 'M', 'J', 'V', 'S', 'D'];
+        for (let i = 0; i < 7; i++) { const a = from + i * 86400000; bars.push({ l: names[i], n: starsSince(a, a + 86400000), today: a === startOf('day') }); }
+      } else {
+        const d = new Date(now.getFullYear(), now.getMonth() + offset, 1);
+        from = d.getTime(); to = new Date(d.getFullYear(), d.getMonth() + 1, 1).getTime();
+        title = offset === 0 ? 'Ce mois-ci' : d.toLocaleDateString('fr-FR', { month: 'long', year: 'numeric' });
+        for (let a = from, i = 1; a < to; a = new Date(d.getFullYear(), d.getMonth(), ++i).getTime()) bars.push({ l: String(i), n: starsSince(a, new Date(d.getFullYear(), d.getMonth(), i + 1).getTime()), today: a === startOf('day') });
+      }
+      const total = starsSince(from, to);
+      const max = Math.max(1, ...bars.map((b) => b.n));
+      const bySrc = Object.keys(STAR_SRC).map((k) => ({ k, n: starLog().filter((s) => s.at >= from && s.at < to && s.src === k).length })).filter((x) => x.n);
+      const prevTotal = period === 'day' ? starsSince(from - 86400000, from) : period === 'week' ? starsSince(from - 7 * 86400000, from) : starsSince(new Date(new Date(from).getFullYear(), new Date(from).getMonth() - 1, 1).getTime(), from);
+      app.innerHTML = `
+        ${topbar('Mes étoiles')}
+        <div class="chips seg" id="per" style="margin-bottom:14px">
+          ${[['day', 'Jour'], ['week', 'Semaine'], ['month', 'Mois']].map(([k, l]) => `<button class="chip" data-p="${k}" aria-pressed="${k === period}">${l}</button>`).join('')}
+        </div>
+        <div class="card cut center">
+          <div class="row" style="align-items:center;flex-wrap:nowrap">
+            <button class="iconbtn" id="prev" aria-label="Période précédente">${ICON.back}</button>
+            <h2 style="flex:1;text-transform:none">${title}</h2>
+            <button class="iconbtn" id="next" aria-label="Période suivante" ${offset >= 0 ? 'disabled' : ''} style="transform:scaleX(-1)">${ICON.back}</button>
+          </div>
+          <div class="bigstar">★ ${total}</div>
+          <p class="muted" style="font-weight:800;margin:0">étoile${total > 1 ? 's' : ''}${total && total >= prevTotal && prevTotal ? ' · aussi bien ou mieux que la fois d’avant 💪' : ''}</p>
+          ${bars.length ? `<div class="bars ${period}">${bars.map((b) => `<div class="bar${b.today ? ' today' : ''}" title="${b.n}"><span class="v">${b.n || ''}</span><i style="height:${Math.round((b.n / max) * 100)}%"></i><span class="l">${b.l}</span></div>`).join('')}</div>` : ''}
+        </div>
+        <div class="card">
+          <h3 style="margin-bottom:6px">D’où viennent mes étoiles</h3>
+          ${bySrc.length ? bySrc.map((x) => `<div class="tidy-row"><span class="tidy-e" style="width:32px">${ICON[STAR_SRC[x.k].icon].replace('<svg', '<svg width="28" height="28"')}</span><span class="tidy-t">${STAR_SRC[x.k].label}</span><b style="color:#C98A12">★ ${x.n}</b></div>`).join('') : '<p class="muted">Pas encore d’étoile sur cette période. Une mission ou un défi, et c’est parti !</p>'}
+        </div>
+        <div class="grid2" style="margin-top:4px">
+          <div class="stat"><b>${starsSince(startOf('day'))}</b><span>aujourd’hui</span></div>
+          <div class="stat"><b>${starsSince(startOf('week'))}</b><span>cette semaine</span></div>
+          <div class="stat"><b>${starsSince(startOf('month'))}</b><span>ce mois-ci</span></div>
+          <div class="stat"><b>${starLog().length}</b><span>depuis le début</span></div>
+        </div>`;
+      $$('#per .chip').forEach((b) => b.addEventListener('click', () => { period = b.dataset.p; offset = 0; draw(); }));
+      $('#prev').addEventListener('click', () => { offset--; draw(); });
+      $('#next').addEventListener('click', () => { if (offset < 0) { offset++; draw(); } });
+    };
+    draw();
+  }
+
   /* ---------- Code parent ---------- */
   function viewPin() {
     const creating = !db.settings.pin;
@@ -1507,7 +1595,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.5</p>`;
+      <p class="center muted small">Boussole calme · V1.6</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
@@ -1532,6 +1620,7 @@
           const added = d.crises.filter((c) => c && c.id && !known.has(c.id));
           db.crises = [...db.crises, ...added].sort((a, b) => b.start - a.start);
           db.meteo = [...(d.meteo || []), ...db.meteo].sort((a, b) => b.at - a.at).slice(0, 500);
+          if (Array.isArray(d.starLog)) { const seen = new Set(starLog().map((x) => x.at + x.src)); d.starLog.forEach((x) => { if (!seen.has(x.at + x.src)) db.starLog.push(x); }); db.starLog.sort((a, b) => a.at - b.at); }
           const knownCards = new Set((db.cards || []).map((c) => c.id));
           db.cards = [...(db.cards || []), ...((d.cards || []).filter((c) => c && c.id && !knownCards.has(c.id)))];
           save(); toast(`${added.length} crise${added.length > 1 ? 's' : ''} importée${added.length > 1 ? 's' : ''}`); render();
