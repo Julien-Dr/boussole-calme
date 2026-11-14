@@ -329,3 +329,11 @@ a.banner, a.mini, a.tile, .weather button { text-decoration: none; color: inheri
 .lk-ic svg { width: 44px; height: 44px; }
 .lk-tx b { display: block; }
 .lk-tx span { display: block; font-size: .85rem; color: var(--ink-soft); font-weight: 700; }
+
+/* ---------- Fiches ---------- */
+details.fiche { padding: 14px 16px; }
+details.fiche summary { cursor: pointer; list-style: none; display: flex; flex-direction: column; gap: 2px; }
+details.fiche summary::-webkit-details-marker { display: none; }
+details.fiche summary b::after { content: " ▾"; color: var(--ink-soft); }
+details.fiche[open] summary b::after { content: " ▴"; }
+.hint a { color: var(--ink); font-weight: 800; }

@@ -2,7 +2,7 @@
 
 Petite appli web pour traverser les crises et les tempêtes d'émotions en famille. Elle s'installe sur le téléphone et fonctionne hors connexion.
 
-## Ce qu'elle contient (V1.7)
+## Ce qu'elle contient (V1.8)
 
 - **Mon temps pour me calmer** : un minuteur visuel de 20 minutes (« je vais dans ma chambre »). Il propose aussi des repères pour le parent pendant la crise et une note rapide : déclencheur, lieu, intensité, ce qui s'est passé.
 - **En reparler à froid** : un rappel programmé après la crise, puis une discussion guidée en 5 étapes (ce qui s'est passé, ressenti, la prochaine fois, réparation, réconciliation).
@@ -16,6 +16,8 @@ Petite appli web pour traverser les crises et les tempêtes d'émotions en famil
 - **Ma toilette** : toilettes, mains, visage, dents (pendant tout le cercle du minuteur), coiffure, rangement du lavabo. La liste se modifie par le parent.
 - **Mes étoiles** : chaque étoile gagnée (missions et défis réussis) est enregistrée avec sa date. On voit le compte du jour, de la semaine (du lundi au dimanche) et du mois, avec un graphique, le détail par rubrique et les périodes précédentes. Le compteur du jour est affiché sur l'accueil.
 - **Expliquer le TDAH à mon enfant** (dans Pour le parent) : des repères pour en parler, des vidéos et des lectures, et la possibilité d'ajouter ses propres liens.
+- **Mes devoirs** : goûter d'abord, puis une étape à la fois (routine inspirée des conseils de l'association TDAH Partout Pareil).
+- **Fiches pour le parent** : résumés de fiches sur les devoirs, l'opposition (TOP), le sommeil, l'école, la fratrie et les aides (répit, dispositifs, MDPH). Les documents complets sont sur le site de l'association.
 - **Espace parent** (protégé par un code à 4 chiffres) : journal des crises avec quelques chiffres, réglages, export et import des données.
 
 ## Vie privée

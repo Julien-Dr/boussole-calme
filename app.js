@@ -209,10 +209,11 @@
     [/^#\/minuteur$/, viewVTimer],
     [/^#\/etoiles$/, viewStars],
     [/^#\/expliquer$/, viewExplain],
+    [/^#\/fiches$/, viewFiches],
     [/^#\/ranger$/, () => go('#/r/ranger')],
-    [/^#\/r\/(ranger|habiller|toilette)$/, viewRoutine],
-    [/^#\/r\/(ranger|habiller|toilette)\/go$/, viewRoutineGo],
-    [/^#\/r\/(ranger|habiller|toilette)\/liste$/, guard(viewRoutineEdit)],
+    [/^#\/r\/(ranger|habiller|toilette|devoirs)$/, viewRoutine],
+    [/^#\/r\/(ranger|habiller|toilette|devoirs)\/go$/, viewRoutineGo],
+    [/^#\/r\/(ranger|habiller|toilette|devoirs)\/liste$/, guard(viewRoutineEdit)],
     [/^#\/ennui\/pioche(?:\/(\w+))?$/, viewPioche],
     [/^#\/ennui\/duo$/, viewDuo],
     [/^#\/ennui\/reve$/, viewReve],
@@ -286,6 +287,10 @@
         <a class="tile bg-sky" href="#/r/habiller"><div class="pic c-sky">${ICON.shirt}</div><div class="txt"><strong>Je m’habille</strong></div></a>
         <a class="tile bg-plum" href="#/r/toilette"><div class="pic c-plum">${ICON.drop}</div><div class="txt"><strong>Ma toilette</strong></div></a>
       </div>
+      <a class="tile bg-sun" href="#/r/devoirs">
+        <div class="pic c-sun">${ICON.pencil}</div>
+        <div class="txt"><strong>Mes devoirs</strong><span>Goûter d’abord, puis un exercice à la fois</span></div>
+      </a>
       <div class="section-title">Pour le parent</div>
       ${screenBanner()}
       <div class="parentrow" style="grid-template-columns:repeat(4,1fr)">
@@ -297,6 +302,10 @@
       <a class="tile bg-stone" href="#/expliquer" style="margin-top:12px">
         <div class="pic c-sun">${ICON.idea}</div>
         <div class="txt"><strong>Expliquer le TDAH à mon enfant</strong><span>Repères, vidéos et lectures</span></div>
+      </a>
+      <a class="tile bg-stone" href="#/fiches">
+        <div class="pic c-sky">${ICON.notebook}</div>
+        <div class="txt"><strong>Fiches pour le parent</strong><span>Devoirs, opposition, sommeil, école, aides</span></div>
       </a>
       <div class="spacer"></div>
       <p class="center muted small" style="margin-top:22px">Tout reste sur cet appareil.</p>`;
@@ -1212,6 +1221,23 @@
       { e: '🧺', t: 'Je range ma brosse à dents et ma serviette', min: 1 }
     ]
   };
+  ROUTINES.devoirs = {
+    title: 'Mes devoirs', icon: 'pencil', c: 'c-sun', color: '#F2B84B', btn: 'sun',
+    intro: 'D’abord je recharge mes batteries, puis un exercice à la fois. Une étoile par étape !',
+    endAll: 'Devoirs terminés !', endMsg: 'Bravo ! Maintenant, file te détendre : tu l’as bien mérité.',
+    tip: '<b>Astuce parent :</b> en fin de journée, il est fatigué d’avoir fait des efforts toute la journée (et un éventuel traitement s’estompe). Un endroit calme, sans écran, vous disponible et détendu ; une consigne à la fois ; on le laisse faire seul et on le recentre seulement si besoin. Si la fatigue est trop forte, un petit mot à l’enseignant vaut mieux qu’un bras de fer. <a href="#/fiches">Voir la fiche « devoirs »</a>',
+    steps: [
+      { e: '🍎', t: 'Je me repose et je prends mon goûter', min: 10 },
+      { e: '✉️', t: 'Je donne les papiers à signer à papa ou maman', min: 1 },
+      { e: '📒', t: 'Je regarde dans mon agenda ce qu’il y a à faire', min: 2 },
+      { e: '✏️', t: 'Je sors seulement ce dont j’ai besoin', min: 2 },
+      { e: '💪', t: 'Je commence par le plus difficile', min: 10 },
+      { e: '🧃', t: 'Petite pause : je bouge, je bois un peu d’eau', min: 2 },
+      { e: '📝', t: 'Je fais le reste, un exercice à la fois', min: 10 },
+      { e: '✅', t: 'Je raye dans l’agenda ce que j’ai fini', min: 1 },
+      { e: '🎒', t: 'Je prépare mon cartable pour demain', min: 3 }
+    ]
+  };
   const routine = (k) => {
     db.routines = db.routines || {};
     if (!db.routines.ranger && db.tidy) { db.routines.ranger = db.tidy; delete db.tidy; } // reprise des données V1.3
@@ -1354,6 +1380,7 @@
     ranger: { label: 'Ma chambre', icon: 'basket' },
     habiller: { label: 'M’habiller', icon: 'shirt' },
     toilette: { label: 'Ma toilette', icon: 'drop' },
+    devoirs: { label: 'Mes devoirs', icon: 'pencil' },
     defi: { label: 'Défis réussis', icon: 'timer' }
   };
   function starLog() {
@@ -1438,6 +1465,7 @@
   /* ---------- Expliquer le TDAH à mon enfant ---------- */
   const EXPLAIN_LINKS = [
     { group: 'À regarder ensemble', kind: 'video', title: 'Le TDAH expliqué aux enfants : et si c’était un super pouvoir ?', by: 'Jennifer Wilson (YouTube)', url: 'https://www.youtube.com/watch?v=EdmbGHgDpvA' },
+    { group: 'À regarder ensemble', kind: 'video', title: 'Raph et le TDAH', by: 'Synapse 360 (YouTube)', url: 'https://www.youtube.com/watch?v=0CRBlb08poM' },
     { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 1', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=EAmXnm-XG_Y' },
     { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 2', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=URjdLzEy5eA' },
     { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 3 (à partir de 1:20)', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=rTw94ON77kU&t=80s' },
@@ -1491,6 +1519,95 @@
       if (!confirmInline(b, '?')) return;
       db.links = (db.links || []).filter((l) => l.id !== b.dataset.del); save(); render();
     }));
+  }
+
+  /* ---------- Fiches pour le parent (résumés) ---------- */
+  const TPP = { name: 'TDAH Partout Pareil', url: 'https://www.tdah-partout-pareil.info' };
+  const FICHES = [
+    { g: 'Au quotidien', t: 'Le moment des devoirs', src: TPP, app: ['#/r/devoirs', 'Ouvrir « Mes devoirs »'], pts: [
+      'Après l’école, il est déjà fatigué d’avoir dû se contenir et se concentrer toute la journée ; un éventuel traitement arrive en fin d’effet.',
+      'Avant de commencer : un temps de repos et un vrai goûter. Puis un coin calme, bien éclairé, sans écran ni distraction.',
+      'Le parent est disponible et détendu, donne une seule consigne à la fois, laisse faire seul et recentre seulement si besoin.',
+      'Commencer par le plus difficile, finir par le plus facile. Faire une pause aux premiers signes de fatigue ; si c’est trop, un mot à l’enseignant.',
+      'Un programme affiché (devoirs, jeux, repas, activités) avec une case à cocher ; noter les devoirs de la semaine quand on a l’agenda, pour le soir où il l’oublie.',
+      'Voir avec l’enseignant : devoirs donnés à l’avance, et une trousse « de secours » avec le matériel en double.'
+    ] },
+    { g: 'Au quotidien', t: 'Le travail à la maison (ados, adaptable aux plus jeunes)', src: TPP, pts: [
+      'Une routine fixe : toujours le même moment, le même endroit, du matériel réservé à ce moment-là.',
+      'Un bureau dégagé, une couleur par matière, ce qui est prioritaire bien en vue.',
+      'Des listes avec des priorités et des dates, affichées, qu’on raye au fur et à mesure.',
+      'Une seule chose à la fois, les écrans éloignés.',
+      'Le droit de bouger : travailler debout, manipuler, gribouiller. Rendre la leçon vivante (dessins, gestes, vidéos).'
+    ] },
+    { g: 'Comportement', t: 'L’opposition (TOP) : comprendre', src: TPP, pts: [
+      'Le trouble oppositionnel avec provocation, c’est une opposition fréquente et durable : colères, contestation, provocations, rancune, depuis au moins 6 mois.',
+      'Il accompagne souvent le TDAH (autour d’un enfant sur deux selon la fiche).',
+      'Il s’installe en spirale : remarques négatives, conflits, encore plus d’opposition, à l’école comme à la maison.',
+      'Les mots qu’il lance cherchent souvent à tester les limites : ne pas les prendre au pied de la lettre, ne pas tomber dans le piège.'
+    ] },
+    { g: 'Comportement', t: 'L’opposition (TOP) : comment en sortir', src: TPP, app: ['#/etoiles', 'Voir « Mes étoiles »'], pts: [
+      'Arrêter peu à peu de réagir aux comportements indésirables. Au début, ça peut empirer (il teste la nouvelle règle), puis ça s’éteint si on reste calme.',
+      'Féliciter chaque comportement attendu, même « normal », et le dire en « je » : « je suis contente que tu aies rangé ».',
+      'Une seule remarque à la fois, sans jugement sur la personne : éviter « tu es… » et « tu ne… jamais ».',
+      'Un tableau de points : 3 ou 4 objectifs faciles d’abord, un bilan positif chaque semaine, jamais retirer une récompense gagnée.',
+      'En cas de débordement : un temps pour se calmer (environ une minute par année d’âge, 15 au maximum), sans humiliation.',
+      'Des défouloirs sains : crier dans un coussin, trampoline, bataille de coussins… et l’humour pour couper la spirale.',
+      'Se faire aider si besoin : programme Barkley pour les parents, psychologue, TCC, psychomotricien, méthode REACT.'
+    ] },
+    { g: 'Santé', t: 'Sommeil et TDAH', src: TPP, pts: [
+      'Environ trois personnes avec un TDAH sur quatre ont aussi des troubles du sommeil (entretien avec la psychiatre Sandra Kooij, 2017).',
+      'Leur horloge interne est souvent décalée : endormissement plus tardif, plus d’éveil le soir.',
+      'Le manque de sommeil chronique aggrave les difficultés au quotidien.',
+      'Mélatonine le soir ou lumière le matin peuvent aider certaines personnes : à discuter avec le médecin.'
+    ] },
+    { g: 'École', t: 'Le TDAH à l’école (livret)', src: TPP, pts: [
+      'Le TDAH vient du fonctionnement du cerveau, pas d’un manque d’éducation ou de volonté ; il se présente sous 3 formes (inattention, hyperactivité-impulsivité, mixte).',
+      'Ce qui ressemble à de l’insolence n’est pas une hostilité volontaire.',
+      'La plupart des enfants concernés ont besoin d’aménagements pédagogiques, parfois d’une aide humaine ou matérielle, via des plans scolaires ou la MDPH.',
+      'Un vrai partenariat famille – école – enfant – professionnels, régulier et bienveillant, qui souligne aussi les progrès.',
+      'Ses forces : imagination, créativité, énergie, enthousiasme, spontanéité, originalité.'
+    ] },
+    { g: 'Comprendre et en parler', t: 'Relations avec les autres enfants (guide pédagogique)', src: { name: 'Fondation Jasmin Roy Sophie Desmarais' }, pts: [
+      'Un guide pour mieux comprendre les comportements liés au TDAH, les expliquer aux autres enfants et mieux intervenir.',
+      'Le TDAH, on ne l’attrape pas : on naît avec.',
+      'La fratrie : lui expliquer que les besoins de son frère ou sa sœur sont différents, garder du temps pour chaque enfant et célébrer aussi ses réussites.',
+      'À l’école : la récréation est essentielle (ne pas la supprimer comme punition) ; le sport, la musique ou le théâtre aident à se faire des amis.',
+      'Parents et enseignant forment une équipe : les parents sont les experts de leur enfant.'
+    ] },
+    { g: 'Aides et démarches', t: 'Dispositifs et plateformes de soutien', src: TPP, pts: [
+      'PCO (plateformes de coordination et d’orientation) pour un repérage et un accompagnement précoces, sur orientation du médecin, du pédiatre ou du médecin scolaire.',
+      'Autres relais : PCPE, DAC (dispositifs d’appui à la coordination), réseaux régionaux spécialisés dans les troubles du neurodéveloppement.',
+      'À l’école : les EMAS (équipes mobiles d’appui à la scolarisation) peuvent épauler l’équipe éducative.',
+      'Des plateformes téléphoniques d’écoute et d’orientation existent ; la fiche donne les contacts par région.'
+    ] },
+    { g: 'Aides et démarches', t: 'Souffler : solutions de répit, haltes-garderies, centres de loisirs', src: TPP, pts: [
+      'Accueil temporaire, plateformes de répit, aide à domicile ou garde d’enfant à la maison : pour quelques heures, un week-end ou les vacances.',
+      'Des crèches, haltes-garderies, centres de loisirs et séjours accueillent les enfants « différents », avec des pistes de financement.',
+      'Les fiches listent des adresses par région : demandez-les à l’association.',
+      'Demander de l’aide n’est pas un échec : un parent qui se repose aide mieux son enfant.'
+    ] },
+    { g: 'Aides et démarches', t: 'Le dossier MDPH', src: TPP, pts: [
+      'La MDPH ouvre l’accès à des aides et à des aménagements (dont les plans scolaires). L’association propose un guide pour monter le dossier ; la version reçue concerne les adultes (AAH, etc.).',
+      'L’association accompagne ses adhérents pour les dossiers plus complexes.'
+    ] }
+  ];
+  function viewFiches() {
+    const groups = [...new Set(FICHES.map((f) => f.g))];
+    app.innerHTML = `
+      ${topbar('Fiches pour le parent')}
+      <p class="muted small" style="margin:-6px 4px 12px">Résumés des fiches que vous avez rassemblées. Touchez une fiche pour l’ouvrir. Pour les documents complets, rendez-vous sur le site de l’association.</p>
+      ${groups.map((g) => `
+        <div class="section-title">${esc(g)}</div>
+        ${FICHES.filter((f) => f.g === g).map((f) => `
+          <details class="fiche card">
+            <summary><b>${esc(f.t)}</b><span class="muted small">${esc(f.src.name)}</span></summary>
+            <ul class="tips">${f.pts.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
+            <div class="row" style="margin-top:8px">
+              ${f.app ? `<a class="btn sun" href="${f.app[0]}">${esc(f.app[1])}</a>` : ''}
+              ${f.src.url ? `<a class="btn soft" href="${f.src.url}" target="_blank" rel="noopener noreferrer">${ICON.link} Site de l’association</a>` : ''}
+            </div>
+          </details>`).join('')}`).join('')}
+      <p class="muted small center" style="margin-top:14px">Ces résumés ne remplacent pas l’avis d’un professionnel de santé.</p>`;
   }
 
   /* ---------- Code parent ---------- */
@@ -1660,7 +1777,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.7</p>`;
+      <p class="center muted small">Boussole calme · V1.8</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
