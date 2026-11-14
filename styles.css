@@ -274,3 +274,27 @@ a.banner, a.mini, a.tile, .weather button { text-decoration: none; color: inheri
 @keyframes pulse { 50% { transform: scale(1.04); } }
 .time.big { font-family: "Fredoka"; font-weight: 600; font-size: 2.4rem; color: var(--ink); }
 @media (prefers-reduced-motion: reduce) { .pie-wrap.done { animation: none; } }
+
+/* ---------- Je range ma chambre ---------- */
+.tidy-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 2px dashed var(--line); }
+.tidy-row:last-child { border-bottom: 0; }
+.tidy-e { font-size: 1.6rem; width: 36px; text-align: center; }
+.tidy-t { flex: 1; font-weight: 700; }
+.stars-total { display: inline-flex; align-items: baseline; gap: 6px; font-family: "Fredoka"; font-weight: 600; font-size: 1.6rem; color: #C98A12; background: var(--sun-soft); border-radius: 999px; padding: 6px 16px; margin-top: 8px; }
+.stars-total span { font-size: .95rem; color: var(--ink-soft); }
+.mission { text-align: center; margin: 6px 0 4px; }
+.mission h1 { font-size: 1.8rem; }
+.mission-e { font-size: 5rem; line-height: 1.1; }
+.small-timer .timer { width: min(52vw, 200px); }
+.small-timer .timer .ring circle { stroke-width: 22; }
+.small-timer .time { font-size: 1.8rem; color: var(--ink); }
+.steps i.cur { background: var(--sage); }
+.btn.big { min-height: 64px; font-size: 1.2rem; }
+.stars { font-size: 2.4rem; letter-spacing: 4px; color: var(--line); margin: 8px 0; }
+.stars .on { color: var(--sun); }
+.starpop { position: fixed; left: 50%; top: 45%; transform: translate(-50%, -50%); font-size: 9rem; color: var(--sun); text-shadow: 0 4px 0 rgba(0,0,0,.08); animation: pop .65s ease-out forwards; pointer-events: none; z-index: 40; }
+@keyframes pop { 0% { transform: translate(-50%, -50%) scale(.2); opacity: 0; } 40% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; } 100% { transform: translate(-50%, -120%) scale(.8); opacity: 0; } }
+.edit-step { padding: 12px; }
+.edit-step select { width: auto; flex: 1; }
+.iconbtn:disabled { opacity: .35; }
+@media (prefers-reduced-motion: reduce) { .starpop { animation: none; opacity: 0; } }

@@ -52,6 +52,9 @@
     screen: S('<rect x="10" y="12" width="44" height="30" rx="4"/><path d="M24 52h16M32 42v10"/>'),
     dice: S('<rect x="12" y="12" width="40" height="40" rx="9"/><circle cx="24" cy="24" r="3" fill="currentColor"/><circle cx="40" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="32" r="3" fill="currentColor"/><circle cx="24" cy="40" r="3" fill="currentColor"/><circle cx="40" cy="40" r="3" fill="currentColor"/>'),
     zzz: S('<path d="M14 18h14L14 34h14M36 30h10l-10 12h10M44 12h8l-8 9h8"/>'),
+    basket: S('<path d="M8 26h48l-6 28H14z" fill="#DCEDE3" stroke="#4F8A6B"/><path d="M20 26l8-14M44 26l-8-14M22 36v10M32 36v10M42 36v10" stroke="#4F8A6B"/>'),
+    up: S('<path d="M18 38l14-14 14 14"/>'),
+    down: S('<path d="M18 26l14 14 14-14"/>'),
     timer: S('<circle cx="32" cy="36" r="20"/><path d="M32 36V24M26 8h12M32 8v8M48 18l4-4"/>')
   };
 
@@ -200,6 +203,9 @@
     [/^#\/froid\/(\w+)$/, viewTalk],
     [/^#\/ennui$/, viewEnnui],
     [/^#\/minuteur$/, viewVTimer],
+    [/^#\/ranger$/, viewTidy],
+    [/^#\/ranger\/go$/, viewTidyGo],
+    [/^#\/ranger\/liste$/, guard(viewTidyEdit)],
     [/^#\/ennui\/pioche(?:\/(\w+))?$/, viewPioche],
     [/^#\/ennui\/duo$/, viewDuo],
     [/^#\/ennui\/reve$/, viewReve],
@@ -264,10 +270,10 @@
         <div class="txt"><strong>Je m’ennuie</strong><span>Je trouve une idée</span></div>
       </a>
       ${timerBanner()}
-      <a class="tile bg-sun" href="#/minuteur">
-        <div class="pic c-terra">${ICON.timer}</div>
-        <div class="txt"><strong>Mon minuteur</strong><span>Je vois le temps qui passe</span></div>
-      </a>
+      <div class="grid2">
+        <a class="tile bg-sun" href="#/minuteur"><div class="pic c-terra">${ICON.timer}</div><div class="txt"><strong>Mon minuteur</strong></div></a>
+        <a class="tile bg-sage" href="#/ranger"><div class="pic c-sage">${ICON.basket}</div><div class="txt"><strong>Je range ma chambre</strong></div></a>
+      </div>
       <div class="section-title">Pour le parent</div>
       ${screenBanner()}
       <div class="parentrow" style="grid-template-columns:repeat(4,1fr)">
@@ -1145,6 +1151,155 @@
     $('#stop').addEventListener('click', () => { db.vtimer = null; save(); go('#/'); });
   }
 
+  /* ---------- Je range ma chambre ---------- */
+  const TIDY_DEFAULT = [
+    { e: '🧸', t: 'Les jouets dans leurs bacs', min: 3 },
+    { e: '👕', t: 'Le linge sale dans le panier', min: 2 },
+    { e: '📚', t: 'Les livres sur l’étagère', min: 2 },
+    { e: '✏️', t: 'Les crayons dans le pot, le bureau dégagé', min: 2 },
+    { e: '🛏️', t: 'La couette et le doudou sur le lit', min: 2 },
+    { e: '🔍', t: 'Je vérifie le sol : plus rien par terre ?', min: 1 }
+  ];
+  const tidy = () => {
+    db.tidy = db.tidy || {};
+    if (!Array.isArray(db.tidy.steps)) db.tidy.steps = TIDY_DEFAULT.map((s) => ({ ...s, id: uid() }));
+    db.tidy.stars = db.tidy.stars || 0;
+    db.tidy.history = db.tidy.history || [];
+    return db.tidy;
+  };
+  const starRow = (n, total) => `<div class="stars">${Array.from({ length: total }, (_, i) => `<span class="${i < n ? 'on' : ''}">★</span>`).join('')}</div>`;
+
+  function viewTidy() {
+    const T = tidy();
+    const total = T.steps.reduce((a, s) => a + s.min, 0);
+    app.innerHTML = `
+      ${topbar('Je range ma chambre')}
+      <div class="card cut center">
+        <div class="c-sage" style="width:84px;margin:0 auto">${ICON.basket}</div>
+        <p style="font-weight:800;font-size:1.1rem;margin-top:6px">${T.steps.length} petites missions, environ ${total} minutes.<br><span class="muted small">Une mission à la fois. Une étoile pour chaque mission réussie !</span></p>
+        <div class="stars-total">★ ${T.stars} <span>étoile${T.stars > 1 ? 's' : ''} gagnée${T.stars > 1 ? 's' : ''}</span></div>
+      </div>
+      <div class="card">
+        <h3 style="margin-bottom:8px">Mes missions</h3>
+        ${T.steps.map((s, i) => `<div class="tidy-row"><span class="tidy-e">${esc(s.e)}</span><span class="tidy-t">${i + 1}. ${esc(s.t)}</span><span class="muted small">${s.min} min</span></div>`).join('') || '<p class="muted">Aucune mission : demandez à un parent d’en ajouter.</p>'}
+      </div>
+      <button class="btn sage block" id="go" ${T.steps.length ? '' : 'disabled'}>${ICON.basket} C’est parti !</button>
+      <a class="btn ghost block" href="#/ranger/liste">${ICON.lock.replace('<svg', '<svg width="18" height="18"')} Modifier les missions (parent)</a>`;
+    $('#go').addEventListener('click', () => {
+      T.run = { i: 0, done: 0, skipped: 0, start: Date.now(), stepStart: Date.now() }; save(); go('#/ranger/go');
+    });
+  }
+
+  function viewTidyGo() {
+    const T = tidy();
+    const r = T.run;
+    if (!r || !T.steps.length) return go('#/ranger');
+    if (r.i >= T.steps.length) return tidyEnd();
+    const s = T.steps[r.i];
+    const dur = s.min * 60000;
+    app.innerHTML = `
+      ${topbar(`Mission ${r.i + 1} sur ${T.steps.length}`, '#/ranger')}
+      <div class="steps">${T.steps.map((_, k) => `<i class="${k < r.i ? 'on' : ''}${k === r.i ? ' cur' : ''}"></i>`).join('')}</div>
+      <div class="mission flip">
+        <div class="mission-e">${esc(s.e)}</div>
+        <h1>${esc(s.t)}</h1>
+      </div>
+      <div class="timerwrap small-timer">
+        <div class="timer">${ringSVG('#6FA488')}<div class="inner"><div class="time">${mmss(dur)}</div></div></div>
+        <p class="muted small" id="hint">&nbsp;</p>
+      </div>
+      <div class="stack">
+        <button class="btn sage block big" id="done">${ICON.star} C’est fait !</button>
+        <button class="btn ghost" id="skip">Je passe cette mission</button>
+      </div>`;
+    const startAt = r.stepStart || Date.now();
+    stopTick();
+    const step = () => {
+      const left = startAt + dur - Date.now();
+      const el = $('.timer'); if (!el) return;
+      updateRing(el, left / dur);
+      $('.time', el).textContent = left > 0 ? mmss(left) : '0:00';
+      if (left <= 0 && !el.classList.contains('done')) { el.classList.add('done'); $('#hint').textContent = 'Le temps est passé… tu y es presque ? Termine et appuie sur « C’est fait ! »'; vibrate([120]); }
+    };
+    step(); tick = setInterval(step, 500);
+    const next = (ok) => {
+      if (ok) { r.done++; T.stars++; vibrate([60]); } else r.skipped++;
+      r.i++; r.stepStart = Date.now(); save();
+      if (ok) {
+        app.insertAdjacentHTML('beforeend', '<div class="starpop">★</div>');
+        setTimeout(() => render(), 650);
+      } else render();
+    };
+    $('#done').addEventListener('click', () => next(true));
+    $('#skip').addEventListener('click', () => next(false));
+  }
+
+  function tidyEnd() {
+    const T = tidy(); const r = T.run;
+    const mins = minutes(Date.now() - r.start);
+    T.history.unshift({ at: Date.now(), done: r.done, total: T.steps.length, min: mins }); T.history = T.history.slice(0, 200);
+    T.run = null; save();
+    const all = r.done === T.steps.length;
+    app.innerHTML = `
+      <div class="calmtitle" style="margin-top:30px">
+        <div class="mission-e">${all ? '🏆' : '👏'}</div>
+        <h1>${all ? 'Chambre rangée !' : 'Bien joué !'}</h1>
+        <p>${r.done} mission${r.done > 1 ? 's' : ''} réussie${r.done > 1 ? 's' : ''} sur ${T.steps.length}, en ${mins} minute${mins > 1 ? 's' : ''}.</p>
+        ${starRow(r.done, T.steps.length)}
+        <p class="small">Va montrer ta chambre à quelqu’un : tu peux être fier de toi.</p>
+        <div class="stars-total" style="margin-top:10px">★ ${T.stars} <span>étoiles en tout</span></div>
+      </div>
+      <a class="btn block" href="#/" style="margin-top:20px">${ICON.home} Accueil</a>`;
+  }
+
+  function viewTidyEdit() {
+    const T = tidy();
+    const draw = () => {
+      app.innerHTML = `
+        ${topbar('Les missions', '#/ranger')}
+        <p class="muted small" style="margin:-6px 4px 12px">Adaptez les missions à sa chambre : une action simple et concrète par mission, avec ses mots à lui si possible.</p>
+        ${T.steps.map((s, i) => `
+          <div class="card edit-step" data-i="${i}">
+            <div class="row" style="align-items:center;flex-wrap:nowrap">
+              <input type="text" class="e" value="${esc(s.e)}" maxlength="4" aria-label="Image" style="width:64px;text-align:center;font-size:1.4rem;padding:8px">
+              <input type="text" class="t" value="${esc(s.t)}" maxlength="70" aria-label="Mission">
+            </div>
+            <div class="row" style="align-items:center;margin-top:8px;flex-wrap:nowrap">
+              <span class="small muted" style="font-weight:800">Durée</span>
+              <select class="m" aria-label="Durée">${[1, 2, 3, 4, 5, 8, 10].map((n) => `<option value="${n}" ${n === s.min ? 'selected' : ''}>${n} min</option>`).join('')}</select>
+              <button class="iconbtn" data-a="up" aria-label="Monter" ${i === 0 ? 'disabled' : ''}>${ICON.up}</button>
+              <button class="iconbtn" data-a="down" aria-label="Descendre" ${i === T.steps.length - 1 ? 'disabled' : ''}>${ICON.down}</button>
+              <button class="iconbtn" data-a="del" aria-label="Supprimer">${ICON.trash}</button>
+            </div>
+          </div>`).join('')}
+        <div class="stack">
+          <button class="btn soft block" id="add">${ICON.plus} Ajouter une mission</button>
+          <button class="btn sage block" id="saveT">${ICON.check} Enregistrer</button>
+          <button class="btn ghost" id="reset">Revenir aux missions de départ</button>
+          <button class="btn ghost" id="zero">Remettre les étoiles à zéro (${T.stars})</button>
+        </div>`;
+      const collect = () => {
+        $$('.edit-step').forEach((c) => {
+          const s = T.steps[Number(c.dataset.i)];
+          s.e = $('.e', c).value.trim() || '⭐'; s.t = $('.t', c).value.trim() || 'Mission'; s.min = Number($('.m', c).value);
+        });
+      };
+      $$('.edit-step [data-a]').forEach((b) => b.addEventListener('click', () => {
+        collect();
+        const i = Number(b.closest('.edit-step').dataset.i), a = b.dataset.a;
+        if (a === 'up' && i > 0) [T.steps[i - 1], T.steps[i]] = [T.steps[i], T.steps[i - 1]];
+        if (a === 'down' && i < T.steps.length - 1) [T.steps[i + 1], T.steps[i]] = [T.steps[i], T.steps[i + 1]];
+        if (a === 'del') T.steps.splice(i, 1);
+        save(); draw();
+      }));
+      $('#add').addEventListener('click', () => { collect(); T.steps.push({ id: uid(), e: '⭐', t: '', min: 2 }); save(); draw(); const last = $$('.edit-step .t').pop(); if (last) last.focus(); });
+      $('#saveT').addEventListener('click', () => { collect(); T.steps = T.steps.filter((s) => s.t); save(); toast('Missions enregistrées'); go('#/ranger'); });
+      $('#reset').addEventListener('click', () => { if (!confirmInline($('#reset'), 'Touchez encore pour confirmer')) return; T.steps = TIDY_DEFAULT.map((s) => ({ ...s, id: uid() })); save(); draw(); });
+      $('#zero').addEventListener('click', () => { if (!confirmInline($('#zero'), 'Touchez encore pour confirmer')) return; T.stars = 0; save(); draw(); });
+    };
+    draw();
+  }
+
   /* ---------- Code parent ---------- */
   function viewPin() {
     const creating = !db.settings.pin;
@@ -1312,7 +1467,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.2</p>`;
+      <p class="center muted small">Boussole calme · V1.3</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
