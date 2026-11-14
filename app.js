@@ -53,6 +53,7 @@
     dice: S('<rect x="12" y="12" width="40" height="40" rx="9"/><circle cx="24" cy="24" r="3" fill="currentColor"/><circle cx="40" cy="24" r="3" fill="currentColor"/><circle cx="32" cy="32" r="3" fill="currentColor"/><circle cx="24" cy="40" r="3" fill="currentColor"/><circle cx="40" cy="40" r="3" fill="currentColor"/>'),
     zzz: S('<path d="M14 18h14L14 34h14M36 30h10l-10 12h10M44 12h8l-8 9h8"/>'),
     basket: S('<path d="M8 26h48l-6 28H14z" fill="#DCEDE3" stroke="#4F8A6B"/><path d="M20 26l8-14M44 26l-8-14M22 36v10M32 36v10M42 36v10" stroke="#4F8A6B"/>'),
+    shirt: S('<path d="M24 10l-14 8 5 11 6-3v28h22V26l6 3 5-11-14-8c-1 4-4 6-8 6s-7-2-8-6z" fill="#DDE6F3" stroke="#56709A"/>'),
     up: S('<path d="M18 38l14-14 14 14"/>'),
     down: S('<path d="M18 26l14 14 14-14"/>'),
     timer: S('<circle cx="32" cy="36" r="20"/><path d="M32 36V24M26 8h12M32 8v8M48 18l4-4"/>')
@@ -203,9 +204,10 @@
     [/^#\/froid\/(\w+)$/, viewTalk],
     [/^#\/ennui$/, viewEnnui],
     [/^#\/minuteur$/, viewVTimer],
-    [/^#\/ranger$/, viewTidy],
-    [/^#\/ranger\/go$/, viewTidyGo],
-    [/^#\/ranger\/liste$/, guard(viewTidyEdit)],
+    [/^#\/ranger$/, () => go('#/r/ranger')],
+    [/^#\/r\/(ranger|habiller)$/, viewRoutine],
+    [/^#\/r\/(ranger|habiller)\/go$/, viewRoutineGo],
+    [/^#\/r\/(ranger|habiller)\/liste$/, guard(viewRoutineEdit)],
     [/^#\/ennui\/pioche(?:\/(\w+))?$/, viewPioche],
     [/^#\/ennui\/duo$/, viewDuo],
     [/^#\/ennui\/reve$/, viewReve],
@@ -272,8 +274,12 @@
       ${timerBanner()}
       <div class="grid2">
         <a class="tile bg-sun" href="#/minuteur"><div class="pic c-terra">${ICON.timer}</div><div class="txt"><strong>Mon minuteur</strong></div></a>
-        <a class="tile bg-sage" href="#/ranger"><div class="pic c-sage">${ICON.basket}</div><div class="txt"><strong>Je range ma chambre</strong></div></a>
+        <a class="tile bg-sage" href="#/r/ranger"><div class="pic c-sage">${ICON.basket}</div><div class="txt"><strong>Je range ma chambre</strong></div></a>
       </div>
+      <a class="tile bg-sky" href="#/r/habiller">
+        <div class="pic c-sky">${ICON.shirt}</div>
+        <div class="txt"><strong>Je m’habille</strong><span>Un vêtement à la fois</span></div>
+      </a>
       <div class="section-title">Pour le parent</div>
       ${screenBanner()}
       <div class="parentrow" style="grid-template-columns:repeat(4,1fr)">
@@ -1151,65 +1157,88 @@
     $('#stop').addEventListener('click', () => { db.vtimer = null; save(); go('#/'); });
   }
 
-  /* ---------- Je range ma chambre ---------- */
-  const TIDY_DEFAULT = [
-    { e: '🧸', t: 'Les jouets dans leurs bacs', min: 3 },
-    { e: '👕', t: 'Le linge sale dans le panier', min: 2 },
-    { e: '📚', t: 'Les livres sur l’étagère', min: 2 },
-    { e: '✏️', t: 'Les crayons dans le pot, le bureau dégagé', min: 2 },
-    { e: '🛏️', t: 'La couette et le doudou sur le lit', min: 2 },
-    { e: '🔍', t: 'Je vérifie le sol : plus rien par terre ?', min: 1 }
-  ];
-  const tidy = () => {
-    db.tidy = db.tidy || {};
-    if (!Array.isArray(db.tidy.steps)) db.tidy.steps = TIDY_DEFAULT.map((s) => ({ ...s, id: uid() }));
-    db.tidy.stars = db.tidy.stars || 0;
-    db.tidy.history = db.tidy.history || [];
-    return db.tidy;
+  /* ---------- Missions guidées : Je range ma chambre / Je m'habille ---------- */
+  const ROUTINES = {
+    ranger: {
+      title: 'Je range ma chambre', icon: 'basket', c: 'c-sage', color: '#6FA488', btn: 'sage',
+      intro: 'Une mission à la fois. Une étoile pour chaque mission réussie !',
+      endAll: 'Chambre rangée !', endMsg: 'Va montrer ta chambre à quelqu’un : tu peux être fier de toi.',
+      tip: '',
+      steps: [
+        { e: '🧸', t: 'Les jouets dans leurs bacs', min: 3 },
+        { e: '👕', t: 'Le linge sale dans le panier', min: 2 },
+        { e: '📚', t: 'Les livres sur l’étagère', min: 2 },
+        { e: '✏️', t: 'Les crayons dans le pot, le bureau dégagé', min: 2 },
+        { e: '🛏️', t: 'La couette et le doudou sur le lit', min: 2 },
+        { e: '🔍', t: 'Je vérifie le sol : plus rien par terre ?', min: 1 }
+      ]
+    },
+    habiller: {
+      title: 'Je m’habille', icon: 'shirt', c: 'c-sky', color: '#6C8EBF', btn: 'sky',
+      intro: 'Un vêtement à la fois, dans l’ordre. Une étoile pour chaque étape !',
+      endAll: 'Prêt, tout habillé !', endMsg: 'Va te montrer à quelqu’un : bravo, tu l’as fait tout seul !',
+      tip: '<b>Astuce parent :</b> préparer les vêtements la veille avec lui, posés dans l’ordre des étapes (ou sur une chaise), loin des jouets et des écrans.',
+      steps: [
+        { e: '🩲', t: 'Le slip (ou la culotte)', min: 1 },
+        { e: '🧦', t: 'Les chaussettes', min: 2 },
+        { e: '👖', t: 'Le pantalon (ou la jupe)', min: 2 },
+        { e: '👕', t: 'Le t-shirt', min: 2 },
+        { e: '🧶', t: 'Le pull ou le gilet', min: 2 },
+        { e: '🪞', t: 'Je me regarde dans le miroir : tout est à l’endroit ?', min: 1 }
+      ]
+    }
+  };
+  const routine = (k) => {
+    db.routines = db.routines || {};
+    if (!db.routines.ranger && db.tidy) { db.routines.ranger = db.tidy; delete db.tidy; } // reprise des données V1.3
+    const R = db.routines[k] = db.routines[k] || {};
+    if (!Array.isArray(R.steps)) R.steps = ROUTINES[k].steps.map((s) => ({ ...s, id: uid() }));
+    R.stars = R.stars || 0; R.history = R.history || [];
+    return R;
   };
   const starRow = (n, total) => `<div class="stars">${Array.from({ length: total }, (_, i) => `<span class="${i < n ? 'on' : ''}">★</span>`).join('')}</div>`;
 
-  function viewTidy() {
-    const T = tidy();
+  function viewRoutine(k) {
+    const C = ROUTINES[k], T = routine(k);
     const total = T.steps.reduce((a, s) => a + s.min, 0);
     app.innerHTML = `
-      ${topbar('Je range ma chambre')}
+      ${topbar(C.title)}
       <div class="card cut center">
-        <div class="c-sage" style="width:84px;margin:0 auto">${ICON.basket}</div>
-        <p style="font-weight:800;font-size:1.1rem;margin-top:6px">${T.steps.length} petites missions, environ ${total} minutes.<br><span class="muted small">Une mission à la fois. Une étoile pour chaque mission réussie !</span></p>
+        <div class="${C.c}" style="width:84px;margin:0 auto">${ICON[C.icon]}</div>
+        <p style="font-weight:800;font-size:1.1rem;margin-top:6px">${T.steps.length} petites missions, environ ${total} minutes.<br><span class="muted small">${C.intro}</span></p>
         <div class="stars-total">★ ${T.stars} <span>étoile${T.stars > 1 ? 's' : ''} gagnée${T.stars > 1 ? 's' : ''}</span></div>
       </div>
       <div class="card">
         <h3 style="margin-bottom:8px">Mes missions</h3>
         ${T.steps.map((s, i) => `<div class="tidy-row"><span class="tidy-e">${esc(s.e)}</span><span class="tidy-t">${i + 1}. ${esc(s.t)}</span><span class="muted small">${s.min} min</span></div>`).join('') || '<p class="muted">Aucune mission : demandez à un parent d’en ajouter.</p>'}
       </div>
-      <button class="btn sage block" id="go" ${T.steps.length ? '' : 'disabled'}>${ICON.basket} C’est parti !</button>
-      <a class="btn ghost block" href="#/ranger/liste">${ICON.lock.replace('<svg', '<svg width="18" height="18"')} Modifier les missions (parent)</a>`;
+      ${C.tip ? `<div class="hint" style="margin-bottom:14px">${C.tip}</div>` : ''}
+      <button class="btn ${C.btn} block" id="go" ${T.steps.length ? '' : 'disabled'}>${ICON[C.icon]} C’est parti !</button>
+      <a class="btn ghost block" href="#/r/${k}/liste">${ICON.lock.replace('<svg', '<svg width="18" height="18"')} Modifier les missions (parent)</a>`;
     $('#go').addEventListener('click', () => {
-      T.run = { i: 0, done: 0, skipped: 0, start: Date.now(), stepStart: Date.now() }; save(); go('#/ranger/go');
+      T.run = { i: 0, done: 0, skipped: 0, start: Date.now(), stepStart: Date.now() }; save(); go(`#/r/${k}/go`);
     });
   }
 
-  function viewTidyGo() {
-    const T = tidy();
-    const r = T.run;
-    if (!r || !T.steps.length) return go('#/ranger');
-    if (r.i >= T.steps.length) return tidyEnd();
+  function viewRoutineGo(k) {
+    const C = ROUTINES[k], T = routine(k), r = T.run;
+    if (!r || !T.steps.length) return go(`#/r/${k}`);
+    if (r.i >= T.steps.length) return routineEnd(k);
     const s = T.steps[r.i];
     const dur = s.min * 60000;
     app.innerHTML = `
-      ${topbar(`Mission ${r.i + 1} sur ${T.steps.length}`, '#/ranger')}
-      <div class="steps">${T.steps.map((_, k) => `<i class="${k < r.i ? 'on' : ''}${k === r.i ? ' cur' : ''}"></i>`).join('')}</div>
+      ${topbar(`Mission ${r.i + 1} sur ${T.steps.length}`, `#/r/${k}`)}
+      <div class="steps">${T.steps.map((_, j) => `<i class="${j < r.i ? 'on' : ''}${j === r.i ? ' cur' : ''}"></i>`).join('')}</div>
       <div class="mission flip">
         <div class="mission-e">${esc(s.e)}</div>
         <h1>${esc(s.t)}</h1>
       </div>
       <div class="timerwrap small-timer">
-        <div class="timer">${ringSVG('#6FA488')}<div class="inner"><div class="time">${mmss(dur)}</div></div></div>
+        <div class="timer">${ringSVG(C.color)}<div class="inner"><div class="time">${mmss(dur)}</div></div></div>
         <p class="muted small" id="hint">&nbsp;</p>
       </div>
       <div class="stack">
-        <button class="btn sage block big" id="done">${ICON.star} C’est fait !</button>
+        <button class="btn ${C.btn} block big" id="done">${ICON.star} C’est fait !</button>
         <button class="btn ghost" id="skip">Je passe cette mission</button>
       </div>`;
     const startAt = r.stepStart || Date.now();
@@ -1225,17 +1254,14 @@
     const next = (ok) => {
       if (ok) { r.done++; T.stars++; vibrate([60]); } else r.skipped++;
       r.i++; r.stepStart = Date.now(); save();
-      if (ok) {
-        app.insertAdjacentHTML('beforeend', '<div class="starpop">★</div>');
-        setTimeout(() => render(), 650);
-      } else render();
+      if (ok) { app.insertAdjacentHTML('beforeend', '<div class="starpop">★</div>'); setTimeout(() => render(), 650); } else render();
     };
     $('#done').addEventListener('click', () => next(true));
     $('#skip').addEventListener('click', () => next(false));
   }
 
-  function tidyEnd() {
-    const T = tidy(); const r = T.run;
+  function routineEnd(k) {
+    const C = ROUTINES[k], T = routine(k), r = T.run;
     const mins = minutes(Date.now() - r.start);
     T.history.unshift({ at: Date.now(), done: r.done, total: T.steps.length, min: mins }); T.history = T.history.slice(0, 200);
     T.run = null; save();
@@ -1243,21 +1269,21 @@
     app.innerHTML = `
       <div class="calmtitle" style="margin-top:30px">
         <div class="mission-e">${all ? '🏆' : '👏'}</div>
-        <h1>${all ? 'Chambre rangée !' : 'Bien joué !'}</h1>
+        <h1>${all ? C.endAll : 'Bien joué !'}</h1>
         <p>${r.done} mission${r.done > 1 ? 's' : ''} réussie${r.done > 1 ? 's' : ''} sur ${T.steps.length}, en ${mins} minute${mins > 1 ? 's' : ''}.</p>
         ${starRow(r.done, T.steps.length)}
-        <p class="small">Va montrer ta chambre à quelqu’un : tu peux être fier de toi.</p>
+        <p class="small">${C.endMsg}</p>
         <div class="stars-total" style="margin-top:10px">★ ${T.stars} <span>étoiles en tout</span></div>
       </div>
       <a class="btn block" href="#/" style="margin-top:20px">${ICON.home} Accueil</a>`;
   }
 
-  function viewTidyEdit() {
-    const T = tidy();
+  function viewRoutineEdit(k) {
+    const C = ROUTINES[k], T = routine(k);
     const draw = () => {
       app.innerHTML = `
-        ${topbar('Les missions', '#/ranger')}
-        <p class="muted small" style="margin:-6px 4px 12px">Adaptez les missions à sa chambre : une action simple et concrète par mission, avec ses mots à lui si possible.</p>
+        ${topbar(`${C.title} · missions`, `#/r/${k}`)}
+        <p class="muted small" style="margin:-6px 4px 12px">Une action simple et concrète par mission, avec ses mots à lui si possible. L’image peut être un emoji.</p>
         ${T.steps.map((s, i) => `
           <div class="card edit-step" data-i="${i}">
             <div class="row" style="align-items:center;flex-wrap:nowrap">
@@ -1274,14 +1300,14 @@
           </div>`).join('')}
         <div class="stack">
           <button class="btn soft block" id="add">${ICON.plus} Ajouter une mission</button>
-          <button class="btn sage block" id="saveT">${ICON.check} Enregistrer</button>
+          <button class="btn ${C.btn} block" id="saveT">${ICON.check} Enregistrer</button>
           <button class="btn ghost" id="reset">Revenir aux missions de départ</button>
           <button class="btn ghost" id="zero">Remettre les étoiles à zéro (${T.stars})</button>
         </div>`;
       const collect = () => {
         $$('.edit-step').forEach((c) => {
           const s = T.steps[Number(c.dataset.i)];
-          s.e = $('.e', c).value.trim() || '⭐'; s.t = $('.t', c).value.trim() || 'Mission'; s.min = Number($('.m', c).value);
+          s.e = $('.e', c).value.trim() || '⭐'; s.t = $('.t', c).value.trim(); s.min = Number($('.m', c).value);
         });
       };
       $$('.edit-step [data-a]').forEach((b) => b.addEventListener('click', () => {
@@ -1293,13 +1319,12 @@
         save(); draw();
       }));
       $('#add').addEventListener('click', () => { collect(); T.steps.push({ id: uid(), e: '⭐', t: '', min: 2 }); save(); draw(); const last = $$('.edit-step .t').pop(); if (last) last.focus(); });
-      $('#saveT').addEventListener('click', () => { collect(); T.steps = T.steps.filter((s) => s.t); save(); toast('Missions enregistrées'); go('#/ranger'); });
-      $('#reset').addEventListener('click', () => { if (!confirmInline($('#reset'), 'Touchez encore pour confirmer')) return; T.steps = TIDY_DEFAULT.map((s) => ({ ...s, id: uid() })); save(); draw(); });
+      $('#saveT').addEventListener('click', () => { collect(); T.steps = T.steps.filter((s) => s.t); save(); toast('Missions enregistrées'); go(`#/r/${k}`); });
+      $('#reset').addEventListener('click', () => { if (!confirmInline($('#reset'), 'Touchez encore pour confirmer')) return; T.steps = C.steps.map((s) => ({ ...s, id: uid() })); save(); draw(); });
       $('#zero').addEventListener('click', () => { if (!confirmInline($('#zero'), 'Touchez encore pour confirmer')) return; T.stars = 0; save(); draw(); });
     };
     draw();
   }
-
   /* ---------- Code parent ---------- */
   function viewPin() {
     const creating = !db.settings.pin;
@@ -1467,7 +1492,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.3</p>`;
+      <p class="center muted small">Boussole calme · V1.4</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
