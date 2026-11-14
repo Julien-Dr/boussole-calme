@@ -1477,7 +1477,7 @@
   // « Ils en parlent » : personnes qui ont parlé elles-mêmes de leur diagnostic.
   const VOICES = [
     { n: 'Louane', r: 'Chanteuse', e: '🎤', w: 'Elle perd le fil d’une conversation quand une pensée l’emporte. Elle en parle parce qu’enfant, elle aurait aimé le savoir.', k: 'enfant', v: 'TDAH : la chanteuse Louane témoigne', by: 'C à vous · 6 min', url: 'https://www.youtube.com/watch?v=UAdMqrvHoMM' },
-    { n: 'Philippe Katerine', r: 'Chanteur, comédien', e: '🎹', w: 'Diagnostiqué à 57 ans. Pas hyperactif du tout : il parle en riant de son « trouble d’attention mou », et se sent bien en studio devant ses dessins.', k: 'enfant', v: 'L’interview dans Clique', by: 'Clique TV · nov. 2026', url: 'https://www.youtube.com/watch?v=EOhSI9A0o_w' },
+    { n: 'Philippe Katerine', r: 'Chanteur, comédien', e: '🎹', w: 'Diagnostiqué à 57 ans. Pas hyperactif du tout : il parle en riant de son « trouble d’attention mou », et se sent bien en studio devant ses dessins.', k: 'enfant', v: 'L’interview dans Clique (à 17:45)', by: 'Clique TV · nov. 2026 · ~2 min', url: 'https://www.youtube.com/watch?v=EOhSI9A0o_w&t=1065s' },
     { n: 'Simone Biles', r: 'Gymnaste, championne olympique', e: '🤸', w: 'Ses données médicales ont été piratées en 2016. Elle a répondu publiquement qu’elle avait un TDAH et un traitement depuis l’enfance : il n’y a pas de quoi avoir honte.', k: 'enfant', v: '« Il n’y a pas de quoi avoir honte »', by: 'Maman à maman, au cœur du TDAH · 6 min', url: 'https://www.youtube.com/watch?v=rR2m_UYQ2Zc' },
     { n: 'Michel Cymes', r: 'Chirurgien ORL, animateur', e: '🩺', w: 'Diagnostiqué après 55 ans. Il dit que s’ennuyer vite l’a obligé à être créatif, et que c’est devenu un atout dans son métier.', k: 'parent', v: 'Et si vous étiez TDAH sans le savoir ?', by: 'C à vous · 10 min', url: 'https://www.youtube.com/watch?v=Rpdis2s55Kw' },
     { n: 'Jérémy Ferrari', r: 'Humoriste', e: '🎭', w: 'Il se sentait différent depuis ses 14 ans, bien avant de mettre un mot dessus.', k: 'parent', v: '« Depuis mes 14 ans, je me sentais différent »', by: 'Clique TV · 24 min', url: 'https://www.youtube.com/watch?v=IvwdK9s1kOg' },
@@ -1801,7 +1801,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.9</p>`;
+      <p class="center muted small">Boussole calme · V1.9.1</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
