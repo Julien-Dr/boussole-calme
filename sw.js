@@ -1,5 +1,5 @@
 /* Boussole calme — service worker : hors connexion + notifications */
-const VERSION = 'bc-v1.9.1';
+const VERSION = 'bc-v1.9.2';
 const SHELL = [
   './',
   './index.html',

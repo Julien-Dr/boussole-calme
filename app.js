@@ -1485,7 +1485,7 @@
     { n: 'Maïtena Biraben', r: 'Animatrice', e: '📺', w: 'Diagnostic d’autisme et de TDAH à 57 ans : « J’ai 57 ans de ma vie à revisiter. »', k: 'parent', v: 'Son témoignage sans filtre', by: 'Le Nouvel Obs · 24 min', url: 'https://www.youtube.com/watch?v=0jpVsfiyqoI' },
     { n: 'Laure Bailacq', r: 'Championne de France de boxe française', e: '🥊', w: 'Diagnostiquée tard. Elle a compris que la boxe était depuis toujours le traitement qu’elle se prescrivait sans le savoir.', k: 'parent', v: 'Championne devenue coach', by: 'LabO RNP · 27 min', url: 'https://www.youtube.com/watch?v=VA2x0mS16ow' },
     { n: 'Alice Gendron', r: 'Autrice du « Petit guide illustré du TDAH »', e: '✏️', w: 'Diagnostiquée à 29 ans, soulagée d’un grand poids. Elle a mis ses gribouillages dans un livre pour expliquer le TDAH en images.', k: 'parent', v: 'Mieux vivre avec un TDAH', by: 'Métamorphose · 52 min', url: 'https://www.youtube.com/watch?v=quayEihABlY' },
-    { n: 'Catherine Testa', r: 'Cheffe d’entreprise', e: '💼', w: '« On m’a dit que j’avais bien trop réussi ma vie pour avoir un TDAH. » Ses notes dépendaient de sa place dans la classe.', k: 'parent', v: 'Son parcours en conférence', by: 'ITS Pierre Bourdieu · 1 h 37', url: 'https://www.youtube.com/watch?v=GXoLHMbTblY' }
+    { n: 'Catherine Testa', r: 'Cheffe d’entreprise', e: '💼', w: '« On m’a dit que j’avais bien trop réussi ma vie pour avoir un TDAH. » Ses notes dépendaient de sa place dans la classe.', k: 'parent', v: 'Sa conférence « TDAH : et alors ? » (à 16:05)', by: 'ITS Pierre Bourdieu', url: 'https://www.youtube.com/watch?v=GXoLHMbTblY&t=965s' }
   ];
 
   function viewExplain() {
@@ -1801,7 +1801,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.9.1</p>`;
+      <p class="center muted small">Boussole calme · V1.9.2</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
