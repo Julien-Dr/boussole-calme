@@ -317,3 +317,15 @@ a.banner, a.mini, a.tile, .weather button { text-decoration: none; color: inheri
 .bars.month .bar:nth-child(odd):not(.today) .l { visibility: hidden; }
 .bar.today i { background: var(--terra); }
 .bar.today .l { color: var(--terra); }
+
+/* ---------- Expliquer le TDAH ---------- */
+.tips { margin: 10px 0 0; padding-left: 1.1rem; }
+.tips li { margin: 8px 0; }
+.linkrow { display: flex; gap: 8px; align-items: center; }
+.linkrow .entry { flex: 1; margin-bottom: 10px; }
+.linkrow .iconbtn { margin-bottom: 10px; }
+.linkcard { display: flex !important; gap: 12px; align-items: center; text-decoration: none; color: inherit; }
+.lk-ic { width: 44px; height: 44px; flex: none; }
+.lk-ic svg { width: 44px; height: 44px; }
+.lk-tx b { display: block; }
+.lk-tx span { display: block; font-size: .85rem; color: var(--ink-soft); font-weight: 700; }

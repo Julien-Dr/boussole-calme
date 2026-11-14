@@ -55,6 +55,8 @@
     basket: S('<path d="M8 26h48l-6 28H14z" fill="#DCEDE3" stroke="#4F8A6B"/><path d="M20 26l8-14M44 26l-8-14M22 36v10M32 36v10M42 36v10" stroke="#4F8A6B"/>'),
     shirt: S('<path d="M24 10l-14 8 5 11 6-3v28h22V26l6 3 5-11-14-8c-1 4-4 6-8 6s-7-2-8-6z" fill="#DDE6F3" stroke="#56709A"/>'),
     drop: S('<path d="M32 8C24 20 16 29 16 38a16 16 0 0 0 32 0c0-9-8-18-16-30z" fill="#EBE2F3" stroke="#9B7BB8"/><path d="M24 40a8 8 0 0 0 8 8" stroke="#9B7BB8"/>'),
+    play: S('<rect x="8" y="14" width="48" height="36" rx="10" fill="#F8DDD3" stroke="#E07A5F"/><path d="M27 24l13 8-13 8z" fill="#E07A5F" stroke="#E07A5F"/>'),
+    link: S('<path d="M28 36a10 10 0 0 0 14 0l8-8a10 10 0 0 0-14-14l-3 3"/><path d="M36 28a10 10 0 0 0-14 0l-8 8a10 10 0 0 0 14 14l3-3"/>'),
     up: S('<path d="M18 38l14-14 14 14"/>'),
     down: S('<path d="M18 26l14 14 14-14"/>'),
     timer: S('<circle cx="32" cy="36" r="20"/><path d="M32 36V24M26 8h12M32 8v8M48 18l4-4"/>')
@@ -206,6 +208,7 @@
     [/^#\/ennui$/, viewEnnui],
     [/^#\/minuteur$/, viewVTimer],
     [/^#\/etoiles$/, viewStars],
+    [/^#\/expliquer$/, viewExplain],
     [/^#\/ranger$/, () => go('#/r/ranger')],
     [/^#\/r\/(ranger|habiller|toilette)$/, viewRoutine],
     [/^#\/r\/(ranger|habiller|toilette)\/go$/, viewRoutineGo],
@@ -291,6 +294,10 @@
         <a class="mini" href="#/parent/journal">${ICON.notebook}Journal</a>
         <a class="mini" href="#/parent/reglages">${ICON.gear}Réglages</a>
       </div>
+      <a class="tile bg-stone" href="#/expliquer" style="margin-top:12px">
+        <div class="pic c-sun">${ICON.idea}</div>
+        <div class="txt"><strong>Expliquer le TDAH à mon enfant</strong><span>Repères, vidéos et lectures</span></div>
+      </a>
       <div class="spacer"></div>
       <p class="center muted small" style="margin-top:22px">Tout reste sur cet appareil.</p>`;
     $('#startCrisis').addEventListener('click', (e) => { e.preventDefault(); startCrisis(); });
@@ -1428,6 +1435,64 @@
     draw();
   }
 
+  /* ---------- Expliquer le TDAH à mon enfant ---------- */
+  const EXPLAIN_LINKS = [
+    { group: 'À regarder ensemble', kind: 'video', title: 'Le TDAH expliqué aux enfants : et si c’était un super pouvoir ?', by: 'Jennifer Wilson (YouTube)', url: 'https://www.youtube.com/watch?v=EdmbGHgDpvA' },
+    { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 1', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=EAmXnm-XG_Y' },
+    { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 2', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=URjdLzEy5eA' },
+    { group: 'Série vidéo CADDAC', kind: 'video', title: 'Vidéo 3 (à partir de 1:20)', by: 'CADDAC – Centre de sensibilisation au TDAH Canada', url: 'https://www.youtube.com/watch?v=rTw94ON77kU&t=80s' },
+    { group: 'À lire (parent)', kind: 'link', title: 'Comment expliquer le TDAH à mon enfant', by: 'CENTAM – clinique de neuropsychologie, Montréal', url: 'https://centam.ca/comment-expliquer-le-tdah-a-mon-enfant/' },
+    { group: 'À lire (parent)', kind: 'link', title: 'Désencombrer quand on a un TDAH (webinaire)', by: 'CADDAC', url: 'https://caddac.ca/fr/programs-events/comment-desencombrer-quand-on-a-un-tdah-et-quon-se-noie-dans-nos-objets/' }
+  ];
+  function viewExplain() {
+    const mine = db.links || [];
+    const all = [...EXPLAIN_LINKS, ...mine.map((l) => ({ ...l, group: 'Mes liens', kind: /youtu/.test(l.url) ? 'video' : 'link', mine: true }))];
+    const groups = [...new Set(all.map((l) => l.group))];
+    app.innerHTML = `
+      ${topbar('Expliquer le TDAH')}
+      <div class="card cut">
+        <h3>Quelques repères pour en parler</h3>
+        <ul class="tips">
+          <li><b>Des mots simples et rassurants.</b> Un trouble, ce n’est pas une maladie qu’on attrape ou qu’on transmet, et ce n’est pas grave.</li>
+          <li><b>Une image qu’il comprend.</b> Une tablette où toutes les applis s’ouvrent en même temps, une télé qui change de chaîne toute seule, des idées qui sautent comme un kangourou.</li>
+          <li><b>Ce n’est pas de sa faute.</b> Il ne fait pas exprès : son cerveau fonctionne autrement, ce qui rend plus difficile de se concentrer ou de rester en place.</li>
+          <li><b>Il y a des astuces.</b> Les minuteurs, les missions, la boîte pour se calmer : c’est fait pour l’aider, et ça marche de mieux en mieux en grandissant.</li>
+          <li><b>Ses forces aussi.</b> Imagination, énergie, humour, curiosité… Le TDAH, c’est sa particularité, comme d’autres ont un grand nez ou sont plus petits.</li>
+        </ul>
+        <p class="muted small" style="margin:8px 0 0">D’après le guide de Faré (<i>TDAH chez l’enfant</i>) et l’article de CENTAM.</p>
+      </div>
+      ${groups.map((g) => `
+        <div class="section-title">${esc(g)}</div>
+        ${all.filter((l) => l.group === g).map((l) => `
+          <div class="linkrow">
+            <a class="entry linkcard" href="${esc(l.url)}" target="_blank" rel="noopener noreferrer">
+              <span class="lk-ic">${ICON[l.kind === 'video' ? 'play' : 'link']}</span>
+              <span class="lk-tx"><b>${esc(l.title)}</b>${l.by ? `<span>${esc(l.by)}</span>` : ''}</span>
+            </a>
+            ${l.mine ? `<button class="iconbtn" data-del="${l.id}" aria-label="Supprimer ce lien">${ICON.trash}</button>` : ''}
+          </div>`).join('')}`).join('')}
+      <div class="card" style="margin-top:14px">
+        <h3>Ajouter un lien</h3>
+        <label class="lab" for="lt">Titre</label>
+        <input type="text" id="lt" maxlength="90" placeholder="Ex. : Vidéo sur l’attention">
+        <label class="lab" for="lu">Adresse</label>
+        <input type="text" id="lu" inputmode="url" placeholder="https://…">
+        <button class="btn soft block" style="margin-top:12px" id="addl">${ICON.plus} Ajouter</button>
+      </div>
+      <p class="muted small center">Les liens s’ouvrent dans le navigateur et demandent une connexion Internet. Regarder la vidéo à deux, puis en parler, aide l’enfant à se l’approprier.</p>`;
+    $('#addl').addEventListener('click', () => {
+      const t = $('#lt').value.trim(); let u = $('#lu').value.trim();
+      if (!u) return toast('Collez l’adresse du lien');
+      if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+      try { new URL(u); } catch (e) { return toast('Adresse invalide'); }
+      db.links = db.links || []; db.links.push({ id: uid(), title: t || u, url: u, by: '' }); save(); toast('Lien ajouté'); render();
+    });
+    $$('[data-del]').forEach((b) => b.addEventListener('click', () => {
+      if (!confirmInline(b, '?')) return;
+      db.links = (db.links || []).filter((l) => l.id !== b.dataset.del); save(); render();
+    }));
+  }
+
   /* ---------- Code parent ---------- */
   function viewPin() {
     const creating = !db.settings.pin;
@@ -1595,7 +1660,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.6</p>`;
+      <p class="center muted small">Boussole calme · V1.7</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
@@ -1621,6 +1686,7 @@
           db.crises = [...db.crises, ...added].sort((a, b) => b.start - a.start);
           db.meteo = [...(d.meteo || []), ...db.meteo].sort((a, b) => b.at - a.at).slice(0, 500);
           if (Array.isArray(d.starLog)) { const seen = new Set(starLog().map((x) => x.at + x.src)); d.starLog.forEach((x) => { if (!seen.has(x.at + x.src)) db.starLog.push(x); }); db.starLog.sort((a, b) => a.at - b.at); }
+          if (Array.isArray(d.links)) { const ku = new Set((db.links || []).map((l) => l.url)); db.links = [...(db.links || []), ...d.links.filter((l) => l && l.url && !ku.has(l.url))]; }
           const knownCards = new Set((db.cards || []).map((c) => c.id));
           db.cards = [...(db.cards || []), ...((d.cards || []).filter((c) => c && c.id && !knownCards.has(c.id)))];
           save(); toast(`${added.length} crise${added.length > 1 ? 's' : ''} importée${added.length > 1 ? 's' : ''}`); render();
