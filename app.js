@@ -57,6 +57,7 @@
     drop: S('<path d="M32 8C24 20 16 29 16 38a16 16 0 0 0 32 0c0-9-8-18-16-30z" fill="#EBE2F3" stroke="#9B7BB8"/><path d="M24 40a8 8 0 0 0 8 8" stroke="#9B7BB8"/>'),
     play: S('<rect x="8" y="14" width="48" height="36" rx="10" fill="#F8DDD3" stroke="#E07A5F"/><path d="M27 24l13 8-13 8z" fill="#E07A5F" stroke="#E07A5F"/>'),
     link: S('<path d="M28 36a10 10 0 0 0 14 0l8-8a10 10 0 0 0-14-14l-3 3"/><path d="M36 28a10 10 0 0 0-14 0l-8 8a10 10 0 0 0 14 14l3-3"/>'),
+    waves: S('<path d="M6 32c5-9 11-9 16 0s11 9 16 0 11-9 16 0"/><path d="M6 18c5-7 11-7 16 0s11 7 16 0 11-7 16 0" opacity=".55"/><path d="M6 46c5-7 11-7 16 0s11 7 16 0 11-7 16 0" opacity=".55"/>'),
     up: S('<path d="M18 38l14-14 14 14"/>'),
     down: S('<path d="M18 26l14 14 14-14"/>'),
     timer: S('<circle cx="32" cy="36" r="20"/><path d="M32 36V24M26 8h12M32 8v8M48 18l4-4"/>')
@@ -207,6 +208,7 @@
     [/^#\/froid\/(\w+)$/, viewTalk],
     [/^#\/ennui$/, viewEnnui],
     [/^#\/minuteur$/, viewVTimer],
+    [/^#\/bruit$/, viewNoise],
     [/^#\/etoiles$/, viewStars],
     [/^#\/expliquer$/, viewExplain],
     [/^#\/fiches$/, viewFiches],
@@ -278,19 +280,19 @@
         <div class="pic c-plum">${ICON.puzzle}</div>
         <div class="txt"><strong>Je m’ennuie</strong><span>Je trouve une idée</span></div>
       </a>
-      ${timerBanner()}
+      ${timerBanner()}${noiseBanner()}
       <div class="grid2">
         <a class="tile bg-sun" href="#/minuteur"><div class="pic c-terra">${ICON.timer}</div><div class="txt"><strong>Mon minuteur</strong></div></a>
-        <a class="tile bg-sage" href="#/r/ranger"><div class="pic c-sage">${ICON.basket}</div><div class="txt"><strong>Je range ma chambre</strong></div></a>
+        <a class="tile bg-sky" href="#/bruit"><div class="pic c-sky">${ICON.waves}</div><div class="txt"><strong>Mon bruit blanc</strong></div></a>
       </div>
       <div class="grid2">
+        <a class="tile bg-sage" href="#/r/ranger"><div class="pic c-sage">${ICON.basket}</div><div class="txt"><strong>Je range ma chambre</strong></div></a>
         <a class="tile bg-sky" href="#/r/habiller"><div class="pic c-sky">${ICON.shirt}</div><div class="txt"><strong>Je m’habille</strong></div></a>
-        <a class="tile bg-plum" href="#/r/toilette"><div class="pic c-plum">${ICON.drop}</div><div class="txt"><strong>Ma toilette</strong></div></a>
       </div>
-      <a class="tile bg-sun" href="#/r/devoirs">
-        <div class="pic c-sun">${ICON.pencil}</div>
-        <div class="txt"><strong>Mes devoirs</strong><span>Goûter d’abord, puis un exercice à la fois</span></div>
-      </a>
+      <div class="grid2">
+        <a class="tile bg-plum" href="#/r/toilette"><div class="pic c-plum">${ICON.drop}</div><div class="txt"><strong>Ma toilette</strong></div></a>
+        <a class="tile bg-sun" href="#/r/devoirs"><div class="pic c-sun">${ICON.pencil}</div><div class="txt"><strong>Mes devoirs</strong></div></a>
+      </div>
       <div class="section-title">Pour le parent</div>
       ${screenBanner()}
       <div class="parentrow" style="grid-template-columns:repeat(4,1fr)">
@@ -555,6 +557,7 @@
       <a class="tile bg-sky" href="#/calme/sens"><div class="pic c-sky">${ICON.eye}</div><div class="txt"><strong>5 choses que je vois</strong><span>Je regarde autour de moi</span></div></a>
       <a class="tile bg-plum" href="#/calme/coussin"><div class="pic">${ICON.pillow}</div><div class="txt"><strong>Serrer mon coussin</strong><span>Fort… puis je relâche</span></div></a>
       <a class="tile bg-sun" href="#/calme/compter"><div class="pic c-sun">${ICON.count}</div><div class="txt"><strong>Compter jusqu’à 10</strong><span>Tout doucement</span></div></a>
+      <a class="tile bg-sky" href="#/bruit"><div class="pic c-sky">${ICON.waves}</div><div class="txt"><strong>Mon bruit blanc</strong><span>Un son doux qui couvre les bruits</span></div></a>
       <a class="tile bg-stone" href="#/calme/eau"><div class="pic c-sky">${ICON.glass}</div><div class="txt"><strong>Boire un verre d’eau</strong><span>Petite gorgée par petite gorgée</span></div></a>`;
   }
 
@@ -1634,6 +1637,156 @@
       <p class="muted small center" style="margin-top:14px">Ces résumés ne remplacent pas l’avis d’un professionnel de santé.</p>`;
   }
 
+  /* ---------- Bruit blanc ---------- */
+  const NOISES = {
+    blanc: { label: 'Blanc', desc: 'Le plus couvrant. Comme un ventilateur.', c: 'c-sky' },
+    rose: { label: 'Rose', desc: 'Plus doux, plus grave. Comme la pluie.', c: 'c-sage' },
+    brun: { label: 'Brun', desc: 'Le plus grave. Comme la mer au loin.', c: 'c-terra' }
+  };
+  // Boucle audio fabriquée dans le téléphone : aucun fichier à télécharger.
+  function makeNoiseURL(type, seconds = 12, sr = 44100) {
+    const n = Math.floor(sr * seconds), buf = new Float32Array(n);
+    let b0 = 0, b1 = 0, b2 = 0, b3 = 0, b4 = 0, b5 = 0, b6 = 0, last = 0;
+    for (let i = 0; i < n; i++) {
+      const w = Math.random() * 2 - 1;
+      let v;
+      if (type === 'blanc') v = w;
+      else if (type === 'rose') {
+        b0 = 0.99886 * b0 + w * 0.0555179; b1 = 0.99332 * b1 + w * 0.0750759;
+        b2 = 0.96900 * b2 + w * 0.1538520; b3 = 0.86650 * b3 + w * 0.3104856;
+        b4 = 0.55000 * b4 + w * 0.5329522; b5 = -0.7616 * b5 - w * 0.0168980;
+        v = (b0 + b1 + b2 + b3 + b4 + b5 + b6 + w * 0.5362) * 0.11; b6 = w * 0.115926;
+      } else { last = (last + 0.02 * w) / 1.02; v = last * 3.5; }
+      buf[i] = v;
+    }
+    // Fondu enchaîné pour une boucle sans accroc
+    const xf = Math.floor(sr * 0.4);
+    for (let i = 0; i < xf; i++) { const t = i / xf; buf[i] = buf[n - xf + i] * (1 - t) + buf[i] * t; }
+    const len = n - xf;
+    let peak = 0; for (let i = 0; i < len; i++) { const a = Math.abs(buf[i]); if (a > peak) peak = a; }
+    const g = peak > 0 ? 0.85 / peak : 1;
+    const ab = new ArrayBuffer(44 + len * 2), dv = new DataView(ab);
+    const str = (o, t) => { for (let i = 0; i < t.length; i++) dv.setUint8(o + i, t.charCodeAt(i)); };
+    str(0, 'RIFF'); dv.setUint32(4, 36 + len * 2, true); str(8, 'WAVEfmt ');
+    dv.setUint32(16, 16, true); dv.setUint16(20, 1, true); dv.setUint16(22, 1, true);
+    dv.setUint32(24, sr, true); dv.setUint32(28, sr * 2, true); dv.setUint16(32, 2, true);
+    dv.setUint16(34, 16, true); str(36, 'data'); dv.setUint32(40, len * 2, true);
+    for (let i = 0; i < len; i++) { let v = buf[i] * g; v = v < -1 ? -1 : v > 1 ? 1 : v; dv.setInt16(44 + i * 2, v * 32767, true); }
+    return URL.createObjectURL(new Blob([ab], { type: 'audio/wav' }));
+  }
+
+  const hms = (ms) => { const t = Math.max(0, Math.ceil(ms / 1000));
+    return t >= 3600 ? `${Math.floor(t / 3600)} h ${pad2(Math.floor(t % 3600 / 60))}` : mmss(ms); };
+  const fadeTxt = (ms) => { if (ms < 60000) return `les ${Math.round(ms / 1000)} dernières secondes`;
+    const m = Math.round(ms / 60000); return m <= 1 ? 'la dernière minute' : `les ${m} dernières minutes`; };
+  let noise = null, noiseTick = null;
+  const noiseLeft = () => noise ? noise.end - Date.now() : 0;
+  function noiseBanner() {
+    if (!noise) return '';
+    return `<a class="banner" href="#/bruit" style="background:var(--sky-soft);border-color:var(--sky)">${ICON.waves.replace('<svg', '<svg style="color:var(--sky)"')}<div><strong>Bruit ${esc(NOISES[noise.type].label.toLowerCase())} en cours</strong><span>S’éteint à ${fmtTime(noise.end)} · reste ${hms(noiseLeft())}</span></div></a>`;
+  }
+  function stopNoise() {
+    if (noiseTick) { clearInterval(noiseTick); noiseTick = null; }
+    if (noise) { try { noise.el.pause(); URL.revokeObjectURL(noise.url); } catch (e) { /* rien */ } noise = null; }
+  }
+  function startNoise(type, min, vol) {
+    stopNoise();
+    const url = makeNoiseURL(type);
+    const el = new Audio(url);
+    el.loop = true; el.volume = 0;
+    const dur = min * 60000;
+    const fadeIn = 20000;
+    const fadeOut = Math.min(180000, Math.max(30000, dur * 0.1));
+    noise = { type, url, el, start: Date.now(), end: Date.now() + dur, dur, fadeIn, fadeOut, vol };
+    el.play().catch(() => toast('Le son n’a pas pu démarrer'));
+    try {
+      if ('mediaSession' in navigator) navigator.mediaSession.metadata = new MediaMetadata({ title: 'Bruit ' + NOISES[type].label.toLowerCase(), artist: 'Boussole calme' });
+    } catch (e) { /* rien */ }
+    noiseTick = setInterval(() => {
+      if (!noise) return;
+      const now = Date.now(), left = noise.end - now, since = now - noise.start;
+      let v = noise.vol;
+      if (since < noise.fadeIn) v = noise.vol * (since / noise.fadeIn);
+      if (left < noise.fadeOut) v = Math.min(v, noise.vol * Math.max(0, left / noise.fadeOut));
+      try { noise.el.volume = Math.max(0, Math.min(1, v)); } catch (e) { /* rien */ }
+      if (left <= 0) { stopNoise(); if (location.hash === '#/bruit') render(); }
+    }, 250);
+    db.settings.noise = { type, min, vol }; save();
+  }
+
+  function viewNoise() {
+    if (noise) return noisePlaying();
+    const pref = db.settings.noise || { type: 'blanc', min: 45, vol: 0.5 };
+    let type = NOISES[pref.type] ? pref.type : 'blanc', min = pref.min || 45, vol = pref.vol || 0.5;
+    const presets = [5, 10, 15, 20, 30, 45, 60, 90, 120];
+    const dur = (m) => m < 60 ? m + ' min' : (m / 60 % 1 ? (m / 60).toFixed(1).replace('.', ' h ').replace(' h 5', ' h 30') : m / 60 + ' h');
+    const paint = () => {
+      app.innerHTML = `
+        ${topbar('Mon bruit blanc')}
+        <div class="card cut center">
+          <div class="${NOISES[type].c}" style="width:76px;margin:0 auto">${ICON.waves}</div>
+          <p style="font-weight:800;margin-top:4px">Un son régulier qui couvre les bruits de la maison et aide à s’endormir ou à se concentrer.</p>
+        </div>
+        <label class="lab" style="margin-top:4px">Quel son ?</label>
+        <div class="chips seg" id="ty">${Object.entries(NOISES).map(([k, v]) => `<button class="chip" data-v="${k}" aria-pressed="${k === type}">${v.label}</button>`).join('')}</div>
+        <p class="muted small" style="margin:8px 4px 0">${esc(NOISES[type].desc)}</p>
+        <label class="lab">Pendant combien de temps ?</label>
+        <div class="card cut center" style="padding:14px">
+          <div class="stepper">
+            <button class="iconbtn big" id="minus" aria-label="Moins 5 minutes">−</button>
+            <div><div class="bignum${min < 60 ? '' : ' nw'}">${min < 60 ? min : (min % 60 ? (min - min % 60) / 60 + ' h ' + (min % 60) : min / 60 + ' h')}</div><div class="muted" style="font-weight:800">${min < 60 ? 'minutes' : ''}</div></div>
+            <button class="iconbtn big" id="plus1" aria-label="Plus 5 minutes">+</button>
+          </div>
+          <div class="chips" id="pre" style="justify-content:center;margin-top:12px">${presets.map((m) => `<button class="chip" data-v="${m}" aria-pressed="${m === min}">${dur(m)}</button>`).join('')}</div>
+        </div>
+        <label class="lab" for="vol">Volume</label>
+        <input type="range" id="vol" min="5" max="100" value="${Math.round(vol * 100)}" class="slider">
+        <button class="btn sky block" style="margin-top:16px" id="go">${ICON.waves} Démarrer</button>
+        <p class="hint" style="margin-top:12px">Le son monte doucement pendant 20 secondes, puis redescend tout seul à la fin : l’extinction est progressive, pour ne réveiller personne. L’heure d’extinction reste affichée pendant toute la durée.</p>
+        <p class="muted small center">Pas trop fort, surtout avec un casque. L’écran peut s’éteindre, le son continue.</p>`;
+      const set = (m) => { min = Math.max(5, Math.min(120, m)); paint(); };
+      $('#minus').addEventListener('click', () => set(min - 5));
+      $('#plus1').addEventListener('click', () => set(min + 5));
+      $$('#pre .chip').forEach((b) => b.addEventListener('click', () => set(Number(b.dataset.v))));
+      $$('#ty .chip').forEach((b) => b.addEventListener('click', () => { type = b.dataset.v; paint(); }));
+      $('#vol').addEventListener('input', (e) => { vol = Number(e.target.value) / 100; });
+      $('#go').addEventListener('click', () => { startNoise(type, min, vol); render(); });
+    };
+    paint();
+  }
+
+  function noisePlaying() {
+    const N = NOISES[noise.type];
+    app.innerHTML = `
+      ${topbar('Bruit ' + N.label.toLowerCase())}
+      <div class="calmtitle">
+        <div class="${N.c} noise-anim" style="width:130px;margin:0 auto">${ICON.waves}</div>
+        <div class="offat">S’éteint à <b id="at">${fmtTime(noise.end)}</b></div>
+        <p class="muted" style="font-weight:800">Reste <span id="left">${hms(noiseLeft())}</span></p>
+        <p class="small muted" id="fading">&nbsp;</p>
+      </div>
+      <label class="lab" for="vol2">Volume</label>
+      <input type="range" id="vol2" min="5" max="100" value="${Math.round(noise.vol * 100)}" class="slider">
+      <div class="row" style="margin-top:14px">
+        <button class="btn soft" id="more15">+ 15 min</button>
+        <button class="btn soft" id="less15">− 15 min</button>
+      </div>
+      <button class="btn block" style="margin-top:10px;background:var(--sky)" id="stop">${ICON.close} Arrêter maintenant</button>`;
+    const step = () => {
+      if (!noise) return render();
+      const left = noiseLeft();
+      const l = $('#left'); if (!l) return;
+      l.textContent = hms(left);
+      $('#at').textContent = fmtTime(noise.end);
+      $('#fading').innerHTML = left < noise.fadeOut ? 'Le son baisse doucement…' : `Le son baissera doucement pendant ${fadeTxt(noise.fadeOut)}.`;
+    };
+    step(); stopTick(); tick = setInterval(step, 1000);
+    $('#vol2').addEventListener('input', (e) => { noise.vol = Number(e.target.value) / 100; db.settings.noise = { ...(db.settings.noise || {}), vol: noise.vol }; save(); });
+    $('#more15').addEventListener('click', () => { noise.end += 15 * 60000; noise.dur += 15 * 60000; step(); toast('15 minutes de plus'); });
+    $('#less15').addEventListener('click', () => { noise.end = Math.max(Date.now() + 30000, noise.end - 15 * 60000); step(); });
+    $('#stop').addEventListener('click', () => { stopNoise(); go('#/'); });
+  }
+
   /* ---------- Code parent ---------- */
   function viewPin() {
     const creating = !db.settings.pin;
@@ -1801,7 +1954,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V1.9.2</p>`;
+      <p class="center muted small">Boussole calme · V2.0</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
