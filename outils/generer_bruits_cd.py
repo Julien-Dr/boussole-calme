@@ -106,8 +106,8 @@ if __name__ == '__main__':
     out = sys.argv[1] if len(sys.argv) > 1 else '.'
     os.makedirs(out, exist_ok=True)
     print(f"Génération de 3 fichiers de {MINUTES:g} minutes dans {os.path.abspath(out)}")
-    for kind, name in (('blanc', 'bruit-blanc-76min.wav'),
-                       ('rose', 'bruit-rose-76min.wav'),
-                       ('brun', 'bruit-brun-76min.wav')):
+    for kind, name in (('blanc', 'bruit-blanc-73min.wav'),
+                       ('rose', 'bruit-rose-73min.wav'),
+                       ('brun', 'bruit-brun-73min.wav')):
         generate(kind, os.path.join(out, name))
     print("Terminé.")
