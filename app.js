@@ -1566,6 +1566,29 @@
       'Une seule chose à la fois, les écrans éloignés.',
       'Le droit de bouger : travailler debout, manipuler, gribouiller. Rendre la leçon vivante (dessins, gestes, vidéos).'
     ] },
+    { g: 'Aider à ranger', t: 'Préparer la chambre : le décor fait la moitié du travail', src: { name: 'Hop’Toys, Range&Co, A. Gendron, Faré', url: 'https://www.bloghoptoys.fr/tdah-10-astuces-pour-organiser-sa-maison', label: 'Les astuces de Hop’Toys' }, app: ['#/r/ranger', 'Ouvrir « Je range ma chambre »'], pts: [
+      'Avec un TDAH, on ne peut pas compter sur la volonté ni sur la mémoire pour maintenir l’ordre : c’est l’aménagement de la pièce qui fait le travail.',
+      'La boîte à bazar : une caisse vide dans un coin, où il glisse au fur et à mesure ce qui traîne. On la vide ensemble une fois par semaine. Une seule, sinon le bazar passe simplement du sol au tiroir.',
+      'Des paniers ouverts plutôt que des boîtes à couvercle : chaque couvercle, chaque tiroir dur à ouvrir est une raison de reposer l’objet par terre.',
+      'Tout à sa hauteur : paniers au sol, étagères et crochets à hauteur de ses bras. Un rangement trop haut ou compliqué ne sert à rien.',
+      'Un bac par famille (voitures, animaux, feutres) plutôt qu’un grand coffre où tout s’empile. Les livres debout dans un bac vertical, c’est plus facile.',
+      'Des étiquettes avec photo, dessin ou pictogramme : elles évitent la microdécision « est-ce que ça va là ? ». Qu’il les dessine lui-même.',
+      'Un code couleur par bac : le cerveau TDAH se repère mieux visuellement.',
+      'Moins de jouets accessibles à la fois : en garder une partie au placard et faire tourner. Moins à ranger, et il termine plus souvent ce qu’il commence.',
+      'Un bac « devoirs » qui contient tout (trousse, cahiers du jour) : quand c’est fini, on range un seul bac au lieu de dix objets.',
+      'Déplacer le rangement là où les affaires atterrissent déjà, plutôt que d’espérer l’inverse : si le linge finit toujours dans le même coin, le panier va là.'
+    ] },
+    { g: 'Aider à ranger', t: 'S’y mettre, et que ça tienne', src: { name: 'Range&Co, Ouest-France, A. Gendron, N. Franc', url: 'https://rangeandco.fr/blogs/news/tdah-et-rangement-pourquoi-c-est-difficile-et-comment-y-arriver', label: 'L’article de Range&Co' }, app: ['#/r/ranger', 'Ouvrir « Je range ma chambre »'], pts: [
+      'Construire le système avec lui, pas pour lui : il choisit les bacs et décide ce qui va où, même si sa logique n’est pas la vôtre. C’est ce qui fait tenir dans le temps.',
+      'Le tandem : vous rangez à côté de lui, chacun son coin. Votre simple présence suffit souvent à lancer la machine.',
+      'Des sessions courtes au minuteur, 10 à 15 minutes, tous les jours plutôt qu’un grand rangement le samedi.',
+      'Le rangement statue : il range en musique et s’immobilise quand le son s’arrête.',
+      'Le concours de paniers : on ouvre toutes les caisses et on compte les paniers réussis.',
+      'Le gros bazar autorisé d’abord, puis on range : la corvée devient la fin du jeu.',
+      'Décrire plutôt que juger : « je vois des cartes qui ne sont pas dans leur boîte » passe mieux que « range-moi ce bazar ».',
+      'Une consigne concrète à la fois — « les Playmobil dans le bac » — et on félicite chaque étape finie avant de donner la suivante.',
+      'Une petite charte affichée : si tu ouvres, referme ; si tu déplaces, remets en place ; si tu mets le bazar, range.'
+    ] },
     { g: 'Comportement', t: 'L’opposition (TOP) : comprendre', src: TPP, pts: [
       'Le trouble oppositionnel avec provocation, c’est une opposition fréquente et durable : colères, contestation, provocations, rancune, depuis au moins 6 mois.',
       'Il accompagne souvent le TDAH (autour d’un enfant sur deux selon la fiche).',
@@ -1631,7 +1654,7 @@
             <ul class="tips">${f.pts.map((x) => `<li>${esc(x)}</li>`).join('')}</ul>
             <div class="row" style="margin-top:8px">
               ${f.app ? `<a class="btn sun" href="${f.app[0]}">${esc(f.app[1])}</a>` : ''}
-              ${f.src.url ? `<a class="btn soft" href="${f.src.url}" target="_blank" rel="noopener noreferrer">${ICON.link} Site de l’association</a>` : ''}
+              ${f.src.url ? `<a class="btn soft" href="${f.src.url}" target="_blank" rel="noopener noreferrer">${ICON.link} ${esc(f.src.label || 'Site de l’association')}</a>` : ''}
             </div>
           </details>`).join('')}`).join('')}
       <p class="muted small center" style="margin-top:14px">Ces résumés ne remplacent pas l’avis d’un professionnel de santé.</p>`;
@@ -1954,7 +1977,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V2.0.1</p>`;
+      <p class="center muted small">Boussole calme · V2.1</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
