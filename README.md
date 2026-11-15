@@ -22,6 +22,17 @@ Petite appli web pour traverser les crises et les tempêtes d'émotions en famil
 - **Fiches pour le parent** : résumés de fiches sur les devoirs, l'opposition (TOP), le sommeil, l'école, la fratrie et les aides (répit, dispositifs, MDPH). Les documents complets sont sur le site de l'association.
 - **Espace parent** (protégé par un code à 4 chiffres) : journal des crises avec quelques chiffres, réglages, export et import des données.
 
+## Outils
+
+`outils/generer_bruits_cd.py` génère trois fichiers WAV de 73 minutes (bruit blanc, rose et brun) au format CD audio — 44,1 kHz, 16 bits, stéréo — avec fondu d'ouverture, fondu de fermeture et les trois calés au même niveau efficace. De quoi graver un CD pour la chambre, sans téléphone.
+
+```
+pip3 install numpy scipy
+python3 outils/generer_bruits_cd.py ~/Musique/bruits
+```
+
+Les réglages (durée, fondus, niveau) sont en clair en haut du fichier. Les fichiers produits ne sont pas versionnés ici : ils font 368 Mio pièce.
+
 ## Vie privée
 
 Les données restent uniquement dans le navigateur de l'appareil (`localStorage`). Rien n'est envoyé sur Internet, et rien n'est enregistré dans ce dépôt. Pour garder une copie ou changer d'appareil, utilisez **Réglages → Exporter**.
