@@ -1190,8 +1190,8 @@
         { e: '🧸', t: 'Les jouets dans leurs bacs', min: 3 },
         { e: '👕', t: 'Le linge sale dans le panier', min: 2 },
         { e: '📚', t: 'Les livres sur l’étagère', min: 2 },
-        { e: '✏️', t: 'Les crayons dans le pot, le bureau dégagé', min: 2 },
-        { e: '🛏️', t: 'La couette et le doudou sur le lit', min: 2 },
+        { e: '✏️', t: 'Les feuilles et les crayons dans les bons tiroirs', min: 2 },
+        { e: '🚪', t: 'Remettre dans ma chambre les jouets qui sont dans le bureau', min: 2 },
         { e: '🔍', t: 'Je vérifie le sol : plus rien par terre ?', min: 1 }
       ]
     },
@@ -1954,7 +1954,7 @@
           <button class="btn danger block" id="wipe">${ICON.trash} Tout effacer</button>
         </div>
       </div>
-      <p class="center muted small">Boussole calme · V2.0</p>`;
+      <p class="center muted small">Boussole calme · V2.0.1</p>`;
     $$('#cm button').forEach((b) => b.addEventListener('click', () => { s.crisisMin = Number(b.dataset.v); save(); $$('#cm button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     $$('#tmin button').forEach((b) => b.addEventListener('click', () => { s.timeoutMin = Number(b.dataset.v); save(); $$('#tmin button').forEach((x) => x.setAttribute('aria-pressed', x === b)); }));
     const pb = $('#perm'); if (pb) pb.addEventListener('click', async () => { await askNotif(); render(); });
